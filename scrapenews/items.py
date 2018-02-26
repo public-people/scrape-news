@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://doc.scrapy.org/en/latest/topics/items.html
-
 import scrapy
 
 
 class ScrapenewsItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    publication_name = scrapy.Field()
+    url = scrapy.Field()
+    scraped_date = scrapy.Field()
+    byline = scrapy.Field()
+    publication_date = scrapy.Field()
+    title = scrapy.Field()
+    body_html = scrapy.Field()
