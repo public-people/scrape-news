@@ -12,4 +12,5 @@ class ThenewageSpider(CrawlSpider):
     rules = (Rule(LinkExtractor(allow=()), callback='parse_item', follow=True),)
 
     def parse_item(self, response):
-        self.logger.info('Hi, this is an item page! %s', response.url)
+        title = response.xpath('//h1[contains(@class, entry-title)]/text()').extract_first()
+        self.logger.info('%s %s', response.url, title)
