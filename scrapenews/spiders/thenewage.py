@@ -18,4 +18,6 @@ class ThenewageSpider(CrawlSpider):
         if og_type == 'activity':
             body_html = response.xpath('//div[contains(@class, "td-post-content")]').extract_first()
             self.logger.info(body_html)
+            publication_date = response.xpath('//time/@datetime').extract_first()
+            self.logger.info(publication_date)
         self.logger.info("")
