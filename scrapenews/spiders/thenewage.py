@@ -12,5 +12,10 @@ class ThenewageSpider(CrawlSpider):
     rules = (Rule(LinkExtractor(allow=()), callback='parse_item', follow=True),)
 
     def parse_item(self, response):
-        title = response.xpath('//h1[contains(@class, entry-title)]/text()').extract_first()
+        title = response.xpath('//h1[contains(@class, "entry-title")]/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
+        og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
+        if og_type == 'activity':
+            body_html = response.xpath('//div[contains(@class, "td-post-content")]').extract_first()
+            self.logger.info(body_html)
+        self.logger.info("")
