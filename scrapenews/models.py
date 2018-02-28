@@ -1,5 +1,3 @@
-from datetime import datetime
-import pytz
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime
 import sqlalchemy.sql.functions as func
@@ -19,10 +17,10 @@ class Article(Base):
                  unique=True,
                  nullable=False)
     publication_name = Column(String,
-                              unique=True,
                               nullable=False)
     byline = Column(String,
-                    nullable=False)
+                    nullable=False,
+                    index=True)
     publication_date = Column(Date,
                               nullable=False)
     created_at = Column(DateTime(timezone=True),
@@ -33,8 +31,7 @@ class Article(Base):
                         server_default=func.now(),
                         onupdate=func.current_timestamp())
     body_html = Column(String,
-                       nullable=False,
-                       index=True)
+                       nullable=False)
     title = Column(String,
                    nullable=False,
                    index=True)
