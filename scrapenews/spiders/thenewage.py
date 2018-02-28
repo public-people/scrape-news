@@ -2,6 +2,7 @@
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+from scrapenews.items import ScrapenewsItem
 
 
 class ThenewageSpider(CrawlSpider):
@@ -11,6 +12,8 @@ class ThenewageSpider(CrawlSpider):
 
     rules = (Rule(LinkExtractor(allow=()), callback='parse_item', follow=True),)
 
+    publication_name = 'The New Age'
+
     def parse_item(self, response):
         title = response.xpath('//h1[contains(@class, "entry-title")]/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
@@ -18,9 +21,16 @@ class ThenewageSpider(CrawlSpider):
         if og_type == 'activity':
             body_element = response.xpath('//div[contains(@class, "td-post-content")]')
             body_html = body_element.extract_first()
-            self.logger.info(body_html)
             byline = body_element.xpath('//p[last()]/text()').extract_first()
-            self.logger.info(byline)
             publication_date = response.xpath('//time/@datetime').extract_first()
-            self.logger.info(publication_date)
+
+            item = ScrapenewsItem()
+            item['body_html'] = body_html
+            item['title'] = title
+            item['byline'] = byline
+            item['publication_date'] = publication_date
+            item['url'] = response.url
+            item['publication_name'] = self.publication_name
+
+            yield item
         self.logger.info("")

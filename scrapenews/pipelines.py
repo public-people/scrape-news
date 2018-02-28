@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import dateutil.parser
+import logging
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+logger = logging.getLogger(__name__)
 
 
 class ScrapenewsPipeline(object):
     def process_item(self, item, spider):
+
+        publication_date = dateutil.parser.parse(item['publication_date'])
+
+        logger.info("%r\n%r", publication_date, item)
         return item
