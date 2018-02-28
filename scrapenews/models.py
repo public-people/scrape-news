@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 import sqlalchemy.sql.functions as func
 
 
@@ -21,7 +21,7 @@ class Article(Base):
     byline = Column(String,
                     nullable=False,
                     index=True)
-    publication_date = Column(Date,
+    publication_date = Column(DateTime(timezone=True),
                               nullable=False)
     created_at = Column(DateTime(timezone=True),
                         nullable=False,
