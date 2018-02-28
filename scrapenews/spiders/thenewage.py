@@ -43,5 +43,8 @@ class ThenewageSpider(CrawlSpider):
             if '?' in link.url:
                 self.logger.info("Ignoring %s", link.url)
                 continue
+            elif link.url.endswith('/home'):
+                self.logger.info("Ignoring %s", link.url)
+                continue
             else:
                 yield link
