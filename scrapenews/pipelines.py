@@ -21,21 +21,25 @@ class ScrapenewsPipeline(object):
 
     def process_item(self, item, spider):
 
-        publication_date = dateutil.parser.parse(item['publication_date'])
 
         session = self.Session()
-        article = Article(
-            url=item['url'],
-            publication_date=item['publication_date'],
-            publication_name=item['publication_name'],
-            byline=item['byline'],
-            title=item['title'],
-            body_html=item['body_html'],
-        )
 
         try:
-            session.add(article)
-            session.commit()
+
+            if session.query(Article).filter(Article.url==item['url']).count():
+                logger.info("Already stored %s", item['url'])
+            else:
+                article = Article(
+                    url=item['url'],
+                    publication_date=item['publication_date'],
+                    publication_name=item['publication_name'],
+                    byline=item['byline'],
+                    title=item['title'],
+                    body_html=item['body_html'],
+                )
+
+                session.add(article)
+                session.commit()
         except:
             session.rollback()
             raise
