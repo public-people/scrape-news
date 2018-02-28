@@ -10,7 +10,10 @@ class ThenewageSpider(CrawlSpider):
     allowed_domains = ['www.thenewage.co.za']
     start_urls = ['http://www.thenewage.co.za/']
 
-    rules = (Rule(LinkExtractor(allow=()), callback='parse_item', follow=True),)
+    link_extractor = LinkExtractor(allow=())
+    rules = (
+        Rule(link_extractor, process_links='filter_links', callback='parse_item', follow=True),
+    )
 
     publication_name = 'The New Age'
 
@@ -34,3 +37,11 @@ class ThenewageSpider(CrawlSpider):
 
             yield item
         self.logger.info("")
+
+    def filter_links(self, links):
+        for link in links:
+            if '?' in link.url:
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            else:
+                yield link
