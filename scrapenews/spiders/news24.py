@@ -5,28 +5,31 @@ from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 
 
-class ThenewageSpider(CrawlSpider):
-    name = 'thenewage'
-    allowed_domains = ['www.news24.com']
-    start_urls = ['https://www.news24.com']
+class News24Spider(CrawlSpider):
+    name = 'news24'
+    allowed_domains = ['www.news24.com', 'localhost']
+    start_urls = ['https://www.news24.com', "http://localhost:8888/Ramaphosa's headaches _ News24.html"]
 
     link_extractor = LinkExtractor(allow=())
     rules = (
-        Rule(link_extractor, process_links='filter_links', callback='parse_item', follow=True),
+        Rule(link_extractor, callback='parse_item', follow=True),
     )
 
     publication_name = 'News24'
 
     def parse_item(self, response):
+        if '/News/' not in response.url:
+            self.logger.info("Ignoring %s", response.url)
+            return
+
         title = response.xpath('//div[contains(@class, "article_details")]/h1/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
-        article_body = response.xpath('//article[contains(@class, "article-body")]')
+        article_body = response.xpath('//article[@id="article-body"]')
         if article_body:
             body_html = article_body.extract_first()
-            byline = body_element.xpath('//div[contains(@class, "ByLineWidth")]/p/text()').extract_first()
-            publication_date = response.xpath('//span[contains(@class, spnDate)]/text()').extract_first()
-            accreditation = body_element.xpath('//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href')
-
+            byline = response.xpath('//div[contains(@class, "ByLineWidth")]/p/text()').extract_first()
+            publication_date = response.xpath('//span[@id="spnDate"]/text()').extract_first()
+            accreditation = response.xpath('//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href').extract_first()
 
             item = ScrapenewsItem()
             item['body_html'] = body_html
@@ -41,11 +44,3 @@ class ThenewageSpider(CrawlSpider):
 
             yield item
         self.logger.info("")
-
-    def filter_links(self, links):
-        for link in links:
-            if not '/News/' in link.url
-                self.logger.info("Ignoring %s", link.url)
-                continue
-            else:
-                yield link
