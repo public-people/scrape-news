@@ -3,6 +3,7 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
+from datetime import datetime
 
 
 class ThenewageSpider(CrawlSpider):
@@ -24,19 +25,21 @@ class ThenewageSpider(CrawlSpider):
         if og_type == 'activity':
             body_element = response.xpath('//div[contains(@class, "td-post-content")]')
             body_html = body_element.extract_first()
-            byline = body_element.xpath('//p[last()]/text()').extract_first()
             publication_date = response.xpath('//time/@datetime').extract_first()
 
-            item = ScrapenewsItem()
-            item['body_html'] = body_html
-            item['title'] = title
-            item['byline'] = byline
-            item['publication_date'] = publication_date
-            item['url'] = response.url
-            item['publication_name'] = self.publication_name
+            if body_html:
+                item = ScrapenewsItem()
+                item['body_html'] = body_html
+                item['title'] = title
+                item['published_at'] = publication_date
+                item['retrieved_at'] = datetime.utcnow().isoformat()
+                item['url'] = response.url
+                item['publication_name'] = self.publication_name
+                item['spider_name'] = self.name
 
-            yield item
-        self.logger.info("")
+                yield item
+            else:
+                self.logger.info("No body found for %s", response.url)
 
     def filter_links(self, links):
         for link in links:

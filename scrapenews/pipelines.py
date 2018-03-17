@@ -1,49 +1,73 @@
 # -*- coding: utf-8 -*-
-import dateutil.parser
+import scrapy
 import logging
-from scrapenews.models import Article
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-import os
+import requests
+import json
+from urlparse import urljoin
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://sanews@localhost/sanews')
 logger = logging.getLogger(__name__)
 
 
 class ScrapenewsPipeline(object):
-    def __init__(self):
-        """
-        Initializes database connection and sessionmaker.
-        Creates deals table.
-        """
-        engine = create_engine(DATABASE_URL)
-        self.Session = sessionmaker(bind=engine)
+
+    def __init__(self, api_key, aleph_host):
+        self.session = requests.Session()
+        self.session.headers['Authorization'] = 'apikey %s' % api_key
+        self.aleph_host = aleph_host
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            api_key=crawler.settings.get('ALEPH_API_KEY'),
+            aleph_host=crawler.settings.get('ALEPH_HOST'),
+        )
 
     def process_item(self, item, spider):
+        meta = {
+            'crawler': item['spider_name'],
+            'source_url': item['url'],
+            'title': item['title'],
+            'foreign_id': item['url'],
+            'mime_type':  'text/html',
+            'countries': 'za',
+            'retrieved_at': item['retrieved_at'],
+            'published_at': item['published_at'],
+        }
 
+        collection_id = self.get_collection_id(item['spider_name'], item['publication_name'])
+        url = self.make_url('collections/%s/ingest' % collection_id)
 
-        session = self.Session()
+        logger.info("Sending '%s' to %s", item['title'], url)
 
-        try:
-
-            if session.query(Article).filter(Article.url==item['url']).count():
-                logger.info("Already stored %s", item['url'])
-            else:
-                article = Article(
-                    url=item['url'],
-                    publication_date=item['publication_date'],
-                    publication_name=item['publication_name'],
-                    byline=item['byline'],
-                    title=item['title'],
-                    body_html=item['body_html'],
-                )
-
-                session.add(article)
-                session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        r = self.session.post(url,
+                              data={'meta': json.dumps(meta)},
+                              files={'file': item['body_html']})
+        if not r.status_code == requests.codes.ok:
+            logger.error("%s\n%s", r.status_code, r.text)
+        r.raise_for_status()
 
         return item
+
+    def get_collection_id(self, foreign_id, name):
+        url = self.make_url('collections')
+        r = self.session.get(url, params={
+            'filter:foreign_id': foreign_id
+        })
+        r.raise_for_status()
+        data = r.json()
+        for coll in data.get('results'):
+            if coll.get('foreign_id') == foreign_id:
+                return coll.get('id')
+
+        r = self.session.post(url, json={
+            'label': name,
+            'category': 'news',
+            'managed': True,
+            'foreign_id': foreign_id
+        })
+        r.raise_for_status()
+        return r.json().get('id')
+
+    def make_url(self, path):
+        prefix = urljoin(self.aleph_host, '/api/2/')
+        return urljoin(prefix, path)
