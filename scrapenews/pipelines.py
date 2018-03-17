@@ -23,13 +23,17 @@ class ScrapenewsPipeline(object):
         )
 
     def process_item(self, item, spider):
+
         meta = {
             'crawler': item['spider_name'],
             'source_url': item['url'],
             'title': item['title'],
+            'file_name': item['file_name'],
+            'extension': 'html',
+            'encoding': 'utf-8',
             'foreign_id': item['url'],
             'mime_type':  'text/html',
-            'countries': 'za',
+            'countries': ['za'],
             'retrieved_at': item['retrieved_at'],
             'published_at': item['published_at'],
         }
@@ -38,6 +42,7 @@ class ScrapenewsPipeline(object):
         url = self.make_url('collections/%s/ingest' % collection_id)
 
         logger.info("Sending '%s' to %s", item['title'], url)
+        logger.debug("meta = %r", meta)
 
         r = self.session.post(url,
                               data={'meta': json.dumps(meta)},

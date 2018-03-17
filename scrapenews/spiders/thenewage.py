@@ -4,6 +4,7 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
+import re
 
 
 class ThenewageSpider(CrawlSpider):
@@ -34,6 +35,7 @@ class ThenewageSpider(CrawlSpider):
                 item['published_at'] = publication_date
                 item['retrieved_at'] = datetime.utcnow().isoformat()
                 item['url'] = response.url
+                item['file_name'] = response.url.split('/')[-1]
                 item['publication_name'] = self.publication_name
                 item['spider_name'] = self.name
 
@@ -43,10 +45,14 @@ class ThenewageSpider(CrawlSpider):
 
     def filter_links(self, links):
         for link in links:
+            match = re.search('/page/(\d+)/', link.url)
             if '?' in link.url:
                 self.logger.info("Ignoring %s", link.url)
                 continue
             elif link.url.endswith('/home'):
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif match and int(match.groups(1)[0]) > 10:
                 self.logger.info("Ignoring %s", link.url)
                 continue
             else:

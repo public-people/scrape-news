@@ -12,3 +12,4 @@ class ScrapenewsItem(scrapy.Item):
     published_at = scrapy.Field()
     title = scrapy.Field()
     body_html = scrapy.Field()
+    file_name = scrapy.Field()
