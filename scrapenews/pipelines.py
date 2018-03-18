@@ -4,6 +4,7 @@ import logging
 import requests
 import json
 from urlparse import urljoin
+from slugify import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,10 @@ class ScrapenewsPipeline(object):
             'published_at': item['published_at'],
         }
 
-        collection_id = self.get_collection_id(item['spider_name'], item['publication_name'])
+        collection_id = self.get_collection_id(
+            slugify(unicode(item['publication_name'])),
+            item['publication_name']
+        )
         url = self.make_url('collections/%s/ingest' % collection_id)
 
         logger.info("Sending '%s' to %s", item['title'], url)

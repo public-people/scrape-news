@@ -1,2 +1,4 @@
 Scrapy==1.5.0
 requests==2.18.4
+pytz==2018.3
+slugify==0.0.1
