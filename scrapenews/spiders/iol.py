@@ -51,12 +51,12 @@ class IOLSpider(CrawlSpider):
     def filter_links(self, links):
         for link in links:
             if '/news/eish' in link.url:
-                self.logger.info("Ignoring %s", link.url)
+                self.logger.debug("Ignoring %s", link.url)
                 continue
             elif '/news/opinion' in link.url:
-                self.logger.info("Ignoring %s", link.url)
+                self.logger.debug("Ignoring %s", link.url)
                 continue
             elif 'iol.co.za/news' in link.url:
                 yield link
             else:
-                self.logger.info("Ignoring %s", link.url)
+                self.logger.debug("Ignoring %s", link.url)
