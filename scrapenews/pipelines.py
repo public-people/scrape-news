@@ -5,6 +5,7 @@ import requests
 import json
 from urlparse import urljoin
 from slugify import slugify
+from requests.adapters import HTTPAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ class ScrapenewsPipeline(object):
         self.session = requests.Session()
         self.session.headers['Authorization'] = 'apikey %s' % api_key
         self.aleph_host = aleph_host
+        self.session.mount(self.aleph_host, HTTPAdapter(max_retries=5))
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -50,7 +52,9 @@ class ScrapenewsPipeline(object):
 
         r = self.session.post(url,
                               data={'meta': json.dumps(meta)},
-                              files={'file': item['body_html']})
+                              files={'file': item['body_html']},
+                              timeout=10,
+        )
         if not r.status_code == requests.codes.ok:
             logger.error("%s\n%s", r.status_code, r.text)
         r.raise_for_status()
@@ -59,7 +63,7 @@ class ScrapenewsPipeline(object):
 
     def get_collection_id(self, foreign_id, name):
         url = self.make_url('collections')
-        r = self.session.get(url, params={
+        r = self.session.get(url, timeout=10, params={
             'filter:foreign_id': foreign_id
         })
         r.raise_for_status()
