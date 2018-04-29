@@ -22,13 +22,19 @@ class DailMaverickSpider(CrawlSpider):
     publication_name = 'Daily Maverick'
 
     def parse_item(self, response):
-        if '/opinionistas' in response.url:
-            self.logger.info("Ignoring %s", response.url)
+        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
+        if canonical_url:
+            url = canonical_url
+        else:
+            url = response.url
+
+        if '/opinionistas' in url:
+            self.logger.info("Ignoring %s", url)
             return
 
-        title = response.xpath('//div[@id="article"]/h1/text()').extract_first()
-        self.logger.info('%s %s', response.url, title)
-        article_body = response.xpath('//div[@id="article"]//div[contains(@class, "body")]')
+        title = response.xpath('//div[@class="titles"]/h1/text()').extract_first()
+        self.logger.info('%s %s', url, title)
+        article_body = response.xpath('//div[@class="article-container"]')
         if article_body:
             body_html = article_body.extract_first()
             byline = response.xpath('//meta[@name="author"]/@content').extract_first()
@@ -43,8 +49,8 @@ class DailMaverickSpider(CrawlSpider):
             item['byline'] = byline
             item['published_at'] = publication_date.isoformat()
             item['retrieved_at'] = datetime.utcnow().isoformat()
-            item['url'] = response.url
-            item['file_name'] = response.url.split('/')[-2]
+            item['url'] = url
+            item['file_name'] = url.split('/')[-2]
             item['spider_name'] = self.name
 
             item['publication_name'] = self.publication_name
