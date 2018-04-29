@@ -14,7 +14,7 @@ class IOLSpider(SitemapSpider):
 
     sitemap_urls = ['https://www.iol.co.za/robots.txt']
     sitemap_follow = [
-        'www.iol.co.za/news',
+        '^https://www.iol.co.za/news/((?!eish).)*$',
         'www.iol.co.za/business-report',
         'www.iol.co.za/politics',
         'www.iol.co.za/personal-finance',
@@ -48,16 +48,3 @@ class IOLSpider(SitemapSpider):
             item['publication_name'] = self.publication_name
 
             yield item
-
-    def filter_links(self, links):
-        for link in links:
-            if '/news/eish' in link.url:
-                self.logger.debug("Ignoring %s", link.url)
-                continue
-            elif '/news/opinion' in link.url:
-                self.logger.debug("Ignoring %s", link.url)
-                continue
-            elif 'iol.co.za/news' in link.url:
-                yield link
-            else:
-                self.logger.debug("Ignoring %s", link.url)
