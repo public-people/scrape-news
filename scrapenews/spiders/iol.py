@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spiders import CrawlSpider, Rule
-from scrapy.linkextractors import LinkExtractor
+from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
@@ -9,19 +8,21 @@ import pytz
 SAST = pytz.timezone('Africa/Johannesburg')
 
 
-class IOLSpider(CrawlSpider):
+class IOLSpider(SitemapSpider):
     name = 'iol'
     allowed_domains = ['www.iol.co.za']
-    start_urls = ['https://www.iol.co.za']
 
-    link_extractor = LinkExtractor(allow=())
-    rules = (
-        Rule(link_extractor, process_links='filter_links', callback='parse_item', follow=True),
-    )
+    sitemap_urls = ['https://www.iol.co.za/robots.txt']
+    sitemap_follow = [
+        'www.iol.co.za/news',
+        'www.iol.co.za/business-report',
+        'www.iol.co.za/politics',
+        'www.iol.co.za/personal-finance',
+    ]
 
     publication_name = 'IOL News'
 
-    def parse_item(self, response):
+    def parse(self, response):
 
         title = response.xpath('//header/h1/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
