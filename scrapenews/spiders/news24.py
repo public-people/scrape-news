@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spiders import CrawlSpider, Rule
-from scrapy.linkextractors import LinkExtractor
+from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
@@ -9,19 +8,22 @@ import pytz
 SAST = pytz.timezone('Africa/Johannesburg')
 
 
-class News24Spider(CrawlSpider):
+class News24Spider(SitemapSpider):
     name = 'news24'
     allowed_domains = ['www.news24.com']
-    start_urls = ['https://www.news24.com']
 
-    link_extractor = LinkExtractor(allow=())
-    rules = (
-        Rule(link_extractor, callback='parse_item', follow=True),
-    )
+    sitemap_urls = ['https://www.news24.com/robots.txt']
+    sitemap_rules = [
+        ('www.news24.com/SouthAfrica/News', 'parse'),
+        ('www.news24.com/Columnists', 'parse'),
+        ('www.news24.com/Green/News', 'parse'),
+        ('www.news24.com/Obituaries', 'parse'),
+        ('www.news24.com/PressReleases', 'parse'),
+    ]
 
     publication_name = 'News24'
 
-    def parse_item(self, response):
+    def parse(self, response):
         if '/News/' not in response.url:
             self.logger.info("Ignoring %s", response.url)
             return
