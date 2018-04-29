@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import scrapy
 import logging
 import requests
 import json
@@ -10,7 +9,7 @@ from requests.adapters import HTTPAdapter
 logger = logging.getLogger(__name__)
 
 
-class ScrapenewsPipeline(object):
+class AlephPipeline(object):
 
     def __init__(self, api_key, aleph_host):
         self.session = requests.Session()
@@ -26,6 +25,9 @@ class ScrapenewsPipeline(object):
         )
 
     def process_item(self, item, spider):
+        if self.url_is_already_indexed(item['url']):
+            logger.info("Not ingesting already indexed %s", item['url'])
+            return item
 
         meta = {
             'crawler': item['spider_name'],
@@ -84,3 +86,15 @@ class ScrapenewsPipeline(object):
     def make_url(self, path):
         prefix = urljoin(self.aleph_host, '/api/2/')
         return urljoin(prefix, path)
+
+    def url_is_already_indexed(self, source_url):
+        logger.info("Checking if already indexed: %s", source_url)
+        url = self.make_url('documents')
+        r = self.session.get(url, params={'filter:source_url': source_url}, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        if data['total'] not in (0, 1):
+            raise Exception(("Unexpected number of existing documents (%r) for %s"
+                             "\nrequested %r")
+                            % (data['total'], source_url, r.url))
+        return data['total'] == 1
