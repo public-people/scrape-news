@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spiders import CrawlSpider, Rule
-from scrapy.linkextractors import LinkExtractor
+from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
@@ -9,19 +8,16 @@ import pytz
 SAST = pytz.timezone('Africa/Johannesburg')
 
 
-class DailMaverickSpider(CrawlSpider):
+class DailMaverickSpider(SitemapSpider):
     name = 'dailymaverick'
     allowed_domains = ['www.dailymaverick.co.za']
-    start_urls = ['https://www.dailymaverick.co.za']
 
-    link_extractor = LinkExtractor(allow=())
-    rules = (
-        Rule(link_extractor, callback='parse_item', follow=True),
-    )
+    sitemap_urls = ['https://www.dailymaverick.co.za/sitemap_index.xml']
+    sitemap_follow = ['article-sitemap']
 
     publication_name = 'Daily Maverick'
 
-    def parse_item(self, response):
+    def parse(self, response):
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
         if canonical_url:
             url = canonical_url
