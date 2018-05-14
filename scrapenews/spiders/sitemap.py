@@ -34,7 +34,7 @@ class SitemapSpider(scrapy.spiders.SitemapSpider):
 
 def iterloc(it, since_lastmod, alt=False):
     for d in it:
-        if d['lastmod'] > since_lastmod:
+        if d.get('lastmod', None) is None or d['lastmod'] > since_lastmod:
             yield d['loc']
         else:
             logger.debug("Skipping too old %s", d['loc'])
@@ -42,7 +42,7 @@ def iterloc(it, since_lastmod, alt=False):
         # Also consider alternate URLs (xhtml:link rel="alternate")
         if alt and 'alternate' in d:
             for l in d['alternate']:
-                if d['lastmod'] > since_lastmod:
+                if d.get('lastmod', None) is None or d['lastmod'] > since_lastmod:
                     yield l
                 else:
                     logger.debug("Skipping too old %s", d['loc'])
