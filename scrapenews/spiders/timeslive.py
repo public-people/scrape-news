@@ -14,12 +14,12 @@ class TimesliveSpider(SitemapSpider):
 
     sitemap_urls = ['https://www.timeslive.co.za/robots.txt']
     sitemap_follow = [
-        'www.timeslive.co.za/anc-conference-2017',
-        'www.timeslive.co.za/news',
-        'www.timeslive.co.za/politics',
-        'www.timeslive.co.za/investigations',
-        'www.timeslive.co.za/opinion-and-analysis',
-        'www.timeslive.co.za/business',
+        'www.timeslive.co.za/sitemap/anc-conference-2017',
+        'www.timeslive.co.za/sitemap/news',
+        'www.timeslive.co.za/sitemap/politics',
+        'www.timeslive.co.za/sitemap/investigations',
+        'www.timeslive.co.za/sitemap/opinion-and-analysis',
+        'www.timeslive.co.za/sitemap/business',
     ]
 
     publication_name = 'Times Live'
@@ -38,39 +38,12 @@ class TimesliveSpider(SitemapSpider):
             byline_no_by = (byline_str).split(" ")[1:]
             byline = " ".join(byline_no_by)
             
-            pubdate_long = response.xpath('//div[@class="article-pub-date "]/text()').extract()[0].strip()
-            day = pubdate_long.split(" ")[0]
-            month = pubdate_long.split(" ")[1]
-            if month == 'January':
-                month = '01'
-            if month == 'February':
-                month = '02'
-            if month == 'March':
-                month = '03'
-            if month == 'April':
-                month = '04'
-            if month == 'May':
-                month = '05'
-            if month == 'June':
-                month = '06'
-            if month == 'July':
-                month = '07'
-            if month == 'August':
-                month = '08'
-            if month == 'September':
-                month = '09'
-            if month == 'October':
-                month = '10'
-            if month == 'November':
-                month = '11'
-            if month == 'December':
-                month = '12'    
-            year = pubdate_long.split(" ")[2]
-            time = pubdate_long.split(" ")[4]
-            publication_date_str = day + " " + month + " " + year + " " + time
-            
-            publication_date = datetime.strptime(publication_date_str, '%d %m %Y %H:%M')
-            publication_date = SAST.localize(publication_date) # check this works, doesn't on cmdline
+            publication_date_str = response.xpath('//div[@class="article-pub-date "]/text()').extract()[0].strip()
+            # '03 May 2018 - 19:17'
+            publication_date = datetime.strptime(publication_date_str, '%d %B %Y - %H:%M')
+            # datetime.datetime(2018, 5, 3, 19, 17)
+            publication_date = SAST.localize(publication_date)
+            # check this works, pytz doesn't import in scrapy shell
 
             item = ScrapenewsItem()
             item['body_html'] = body_html
