@@ -14,9 +14,9 @@ class DailyVoiceSpider(SitemapSpider):
 
     sitemap_urls = ['https://www.dailyvoice.co.za/robots.txt']
     sitemap_follow = [
-        'www.dailyvoice.co.za/news/western-cape/',
-        'www.dailyvoice.co.za/news/national/',
-        'www.dailyvoice.co.za/news/politics/',
+        'www.dailyvoice.co.za/news/western-cape',
+        'www.dailyvoice.co.za/news/national',
+        'www.dailyvoice.co.za/news/politics',
     ]
 
     publication_name = 'Daily Voice'
