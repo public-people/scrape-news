@@ -22,10 +22,10 @@ class DailyVoiceSpider(SitemapSpider):
     publication_name = 'Daily Voice'
 
     def parse(self, response):
-
+        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
         title = response.xpath('//h1/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
-        article_body = response.xpath('//div[@class="articleBodyMore"]')
+        article_body = response.css('div.articleBodyMore')
 
         if article_body:
             body_html = article_body.extract_first()
@@ -42,7 +42,7 @@ class DailyVoiceSpider(SitemapSpider):
             item['byline'] = byline
             item['published_at'] = publication_date.isoformat()
             item['retrieved_at'] = datetime.utcnow().isoformat()
-            item['url'] = response.url
+            item['url'] = canonical_url
             item['file_name'] = response.url.split('/')[-1]
             item['spider_name'] = self.name
             item['publication_name'] = self.publication_name
