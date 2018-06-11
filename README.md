@@ -26,20 +26,15 @@ We do not make news content available for public consumption. We simply store an
 
 ### Set up your development environment
 
-Clone this repository
-
+Fork this repository on GitHub and clone your fork:
 ```bash
-git clone https://github.com/public-people/scrape-news.git
+git clone https://github.com/your-name/scrape-news.git
 ```
 or
 ```bash
-git clone git@github.com:public-people/scrape-news.git
-```
-
-Alternatively, fork this repository on GitHub and clone your fork, eg
-```bash
 git clone git@github.com:your-name/scrape-news.git
 ```
+(Make sure to replace ```your-name```.)
 
 Create a Python 2 virtual environment for this project inside the cloned project directory (Note: your virtual environment program might not be called `pyvenv` -
 ```bash
@@ -47,7 +42,7 @@ cd scrape-news
 pyvenv env
 ```
 
-If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default.
+If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default:
 ```bash
 cd scrape-news
 virtualenv .env2
@@ -104,27 +99,56 @@ Create and check out a branch for the spider you're making:
 ```bash
 git checkout -b newssite
 ```
+(Replace ```newssite``` with the name of the publication you're making a spider for.)
 
 Copy a spider from the repository and amend it as necessary. When it's done, ```git add``` it and ```commit``` the change to your working branch.
 
+### Test your responses
 
-To test individual xpaths you can use the scrapy shell:
+To test individual xpath or css responses you can use the scrapy shell:
 ```bash
 scrapy shell "https://www.newssite.co.za/article-url"
 ```
 If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like
-```
+```html
 <h1 class="article-title">Title of article</h1>
 ```
-highlighted. In the scrapy shell you can then enter something like
+highlighted. In the scrapy shell you can then enter
 ```bash
->>> response.xpath('//h1/text()').extract_first()
+>>> response.css('h1.article-title').xpath('text()').extract_first()
 ```
-or
+to get the title. 
+
+Now that you've checked that this works and doesn't have some unintended consequence, you can copy it into the relevant part of your spider; in this case:
+```python
+def parse(self, response):
+    ...
+    title = response.css('h1.article-title').xpath('text()').extract_first()
+    ...
+```
+
+#### Using css instead of xpath for classes
+
+You could have also used the xpath in the above:
 ```bash
->>> response.css('h1.article-title').extract_first()
+>>> response.xpath('//h1/[@class="article-title"]/text()').extract_first()
 ```
-to get the title. The preference is to use css lookup for classes.
+but the preference is to use css lookup for classes.
+
+The reason for this is that xpaths can be brittle in more complicated instances. Consider the case of
+```html
+<div class="byline pin-right">John Smith</div>
+```
+The only way an xpath query will work here is if you give the exact class name:
+```bash
+>>> response.xpath('//div/[@class="byline pin-right"]/text()').extract_first()
+```
+which means that if the same publication uses, say, ```byline pin-left``` for certain articles the spider won't get a response for 'byline'. 
+(And if you were using ```extract()``` instead of ```extract_first()``` it would get an error.) 
+The safer option is therefore to use the following instead:
+```bash
+>>> response.css('div.byline').xpath('text()').extract_first()
+```
 
 #### Make a pull request
 
