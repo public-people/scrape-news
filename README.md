@@ -163,11 +163,30 @@ and merge any changes into your working branch:
 git merge master newssite
 ```
 
-Then push your working branch to your fork on GitHub (use ```git remote -v``` to check the names of your remotes):
+Then push your ```newssite``` branch to your fork on GitHub (use ```git remote -v``` to check the names of your remotes):
 ```bash
 git push origin newssite
 ```
 Go to [Pull requests](https://github.com/public-people/scrape-news/compare), choose to 'compare across forks', and compare the ```base fork: public-people/scrape-news```, ```base: master``` to ```head fork: your-name/scrape-news```, ```compare: newssite```, and make a new pull request!   
+
+If you make some changes to your spider after your initial pull request, do the following to update the PR:
+```bash
+# check you're up to date
+git fetch upstream
+git checkout master
+git merge upstream/master
+git merge master newssite
+
+# push your changes
+git checkout newssite
+git add newssite.py
+git commit -m "Make changes to newssite spider to incorporate/address review comments"
+git push origin newssite
+``` 
+
+If ```git fetch upstream``` doesn't return anything you can skip the next steps until checking out your ```newssite``` branch.
+
+Pushing the same branch again will automatically update your existing PR.
 
 ## Deployment
 
