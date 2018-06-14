@@ -8,8 +8,8 @@ import pytz
 SAST = pytz.timezone('Africa/Johannesburg')
 
 
-class DailyVoiceSpider(SitemapSpider):
-    name = 'dailyvoice'
+class DailyVoiceSitemapSpider(SitemapSpider):
+    name = 'dailyvoice_sitemap'
     allowed_domains = ['www.dailyvoice.co.za']
 
     sitemap_urls = [
