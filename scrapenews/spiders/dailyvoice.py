@@ -1,50 +1,81 @@
 # -*- coding: utf-8 -*-
 
-from .sitemap import SitemapSpider
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
-import pytz
 
-SAST = pytz.timezone('Africa/Johannesburg')
-
-
-class DailyVoiceSpider(SitemapSpider):
+class DailyvoiceSpider(CrawlSpider):
     name = 'dailyvoice'
-    allowed_domains = ['www.dailyvoice.co.za']
+    allowed_domains = ['dailyvoice.co.za']
 
-    sitemap_urls = ['https://www.dailyvoice.co.za/robots.txt']
-    sitemap_follow = [
-        'www.dailyvoice.co.za/news/western-cape',
-        'www.dailyvoice.co.za/news/national',
-        'www.dailyvoice.co.za/news/politics',
-    ]
+    start_urls = ['https://www.dailyvoice.co.za']
+
+    link_extractor = LinkExtractor(
+        allow=('https://www.dailyvoice.co.za', ),
+        # being ultra specific for the 'allow' because 'dailyvoice.co.za' was
+        # in some of the external links eg instagram
+        deny=(
+            'dailyvoice.co.za/about-us',
+            'dailyvoice.co.za/cdn-cgi/l/email-protection',
+            'dailyvoice.co.za/competitions',
+            'dailyvoice.co.za/contact-us',
+            'dailyvoice.co.za/feedback',
+            'dailyvoice.co.za/lifestyle-',
+            'dailyvoice.co.za/multimedia',
+            'dailyvoice.co.za/opinion',
+            'dailyvoice.co.za/privacy-policy',
+            'dailyvoice.co.za/sport',
+            'dailyvoice.co.za/terms-and-conditions',
+        )
+    )
+
+    rules = (
+        Rule(link_extractor, process_links='filter_links', callback='parse_item', follow=True),
+    )
 
     publication_name = 'Daily Voice'
 
-    def parse(self, response):
+    def parse_item(self, response):
+
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
         title = response.xpath('//h1/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
-        article_body = response.css('div.articleBodyMore')
-
-        if article_body:
-            body_html = article_body.extract_first()
+        # should we be using canonical_url instead of response.url for the above?
+        og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
+        if og_type == 'article':
+            body_html = response.css('div.articleBodyMore').extract_first()
             byline = response.xpath('//strong[@itemprop="name"]/text()').extract_first()
-            publication_date_str = response.xpath('//span[@itemprop="datePublished"]/text()').extract_first()
-            # '24 May 2018, 1:33pm'
-            publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M%p')
-            # datetime.datetime(2018, 5, 24, 13, 33)
-            publication_date = SAST.localize(publication_date)
+            publication_date = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
+            # u'2018-06-12T13:48:00.000Z'
 
-            item = ScrapenewsItem()
-            item['body_html'] = body_html
-            item['title'] = title
-            item['byline'] = byline
-            item['published_at'] = publication_date.isoformat()
-            item['retrieved_at'] = datetime.utcnow().isoformat()
-            item['url'] = canonical_url
-            item['file_name'] = response.url.split('/')[-1]
-            item['spider_name'] = self.name
-            item['publication_name'] = self.publication_name
+            if body_html:
+                item = ScrapenewsItem()
+                item['body_html'] = body_html
+                item['title'] = title
+                item['byline'] = byline
+                item['published_at'] = publication_date
+                item['retrieved_at'] = datetime.utcnow().isoformat()
+                item['url'] = canonical_url
+                item['file_name'] = response.url.split('/')[-1]
+                item['publication_name'] = self.publication_name
+                item['spider_name'] = self.name
 
-            yield item
+                yield item
+            else:
+                self.logger.info("No body found for %s", response.url)
+                # should we be using canonical_url instead of response.url for the above?
+
+    def filter_links(self, links):
+        for link in links:
+            if '?' in link.url:
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif '/news/' not in link.url:
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif '/news/international/' in link.url:
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            else:
+                yield link
