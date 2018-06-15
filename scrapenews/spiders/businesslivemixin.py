@@ -1,21 +1,12 @@
-# -*- coding: utf-8 -*-
-
-from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
+class BusinessLiveMixin():
 
-class BusinessLiveSpider(SitemapSpider):
-    name = 'businesslive'
-    allowed_domains = ['www.businesslive.co.za']
-
-    sitemap_urls = ['https://www.businesslive.co.za/sitemap.xml']
-    sitemap_follow = ['politics', 'companies', 'people', 'national', 'news', 'special-reports', 'economy', 'markets']
-
-    def parse(self, response):
+    def parse_item(self, response):
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
         if canonical_url:
             url = canonical_url
@@ -28,7 +19,7 @@ class BusinessLiveSpider(SitemapSpider):
         # Ignore premium content articles
         is_premium_content = response.css('div.premium-alert').xpath("h3/text()").extract_first() == 'This article is reserved for our subscribers.'
         if is_premium_content:
-            self.logger.info("Ignoring %s", url)
+            self.logger.info("Ignoring premium content %s", url)
             return
 
         article_body = response.css('div.article-widget-text')
@@ -63,3 +54,5 @@ class BusinessLiveSpider(SitemapSpider):
             item['publication_name'] = publication_urls.get(url_part, 'Business Day')
 
             yield item
+        else:
+            self.logger.info("No body found for %s", response.url)
