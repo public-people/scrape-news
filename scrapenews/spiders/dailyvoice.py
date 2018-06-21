@@ -4,6 +4,10 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
+import pytz
+
+SAST = pytz.timezone('Africa/Johannesburg')
+
 
 class DailyvoiceSpider(CrawlSpider):
     name = 'dailyvoice'
@@ -13,9 +17,8 @@ class DailyvoiceSpider(CrawlSpider):
 
     link_extractor = LinkExtractor(
         allow=('https://www.dailyvoice.co.za', ),
-        # being ultra specific for the 'allow' because 'dailyvoice.co.za' was
-        # in some of the external links eg instagram
         deny=(
+            'dailyvoice.co.za#',
             'dailyvoice.co.za/about-us',
             'dailyvoice.co.za/cdn-cgi/l/email-protection',
             'dailyvoice.co.za/competitions',
@@ -44,17 +47,22 @@ class DailyvoiceSpider(CrawlSpider):
         # should we be using canonical_url instead of response.url for the above?
         og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
         if og_type == 'article':
-            body_html = response.css('div.articleBodyMore').extract_first()
+            article_body = response.css('div.article-body')
+            body_html = " ".join(article_body.xpath('//p').css('::text').extract())
             byline = response.xpath('//strong[@itemprop="name"]/text()').extract_first()
-            publication_date = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
-            # u'2018-06-12T13:48:00.000Z'
+            publication_date_str = response.xpath('//span[@itemprop="datePublished"]/text()').extract_first()
+            # u'18 June 2018, 09:01am' -- also tested with '8 June 2018, 09:20pm'
+            publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M%p')
+            # datetime.datetime(2018, 6, 18, 9, 1); datetime.datetime(2018, 6, 8, 21, 20)
+            publication_date = SAST.localize(publication_date)
+            # datetime.datetime(2018, 6, 8, 21, 20, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
 
             if body_html:
                 item = ScrapenewsItem()
                 item['body_html'] = body_html
                 item['title'] = title
                 item['byline'] = byline
-                item['published_at'] = publication_date
+                item['published_at'] = publication_date.isoformat()
                 item['retrieved_at'] = datetime.utcnow().isoformat()
                 item['url'] = canonical_url
                 item['file_name'] = response.url.split('/')[-1]
@@ -77,5 +85,21 @@ class DailyvoiceSpider(CrawlSpider):
             elif '/news/international/' in link.url:
                 self.logger.info("Ignoring %s", link.url)
                 continue
+            elif link.url == 'https://www.dailyvoice.co.za/news/business':
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif link.url == 'https://www.dailyvoice.co.za/news/international':
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif link.url == 'https://www.dailyvoice.co.za/news/national':
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif link.url == 'https://www.dailyvoice.co.za/news/politics':
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            elif link.url == 'https://www.dailyvoice.co.za/news/western-cape':
+                self.logger.info("Ignoring %s", link.url)
+                continue
+            # I'm assuming the above can be simplified but it works!
             else:
                 yield link
