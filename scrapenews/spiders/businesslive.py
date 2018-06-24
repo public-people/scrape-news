@@ -1,3 +1,5 @@
+from scrapy.spiders import SitemapSpider, CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
@@ -56,3 +58,32 @@ class BusinessLiveMixin():
             yield item
         else:
             self.logger.info("No body found for %s", response.url)
+
+
+class BusinessLiveSpider(BusinessLiveMixin, SitemapSpider):
+    name = 'businesslivesitemap'
+    allowed_domains = ['www.businesslive.co.za']
+
+    sitemap_urls = ['https://www.businesslive.co.za/sitemap.xml']
+    sitemap_follow = ['politics', 'companies', 'people', 'national', 'news', 'special-reports', 'economy', 'markets']
+    sitemap_rules = [('.*', 'parse_item')]
+
+
+class BusinessLiveCrawlSpider(BusinessLiveMixin, CrawlSpider):
+    name = 'businesslivecrawl'
+    allowed_domains = ['www.businesslive.co.za']
+    start_urls = ['http://www.businesslive.co.za/']
+
+    rules = (
+        # Extract links containing a date in the url and parse them with the spider's method parse_item
+        Rule(LinkExtractor(
+            allow=(r'\d{4}-\d{2}-\d{2}',),
+            deny=(r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',),
+        ), callback='parse_item'),
+
+        # Extract links matching these categories and follow links from them
+        Rule(LinkExtractor(
+            allow=(r'fm|bd|rdm|bt|ft',),
+            deny=(r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',)
+        ), follow=True),
+    )
