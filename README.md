@@ -10,6 +10,8 @@ We need very broad coverage of news outlets. Contributed spiders are very welcom
 
 It's really easy to contribute spiders. Basically you can copy an existing spider and change the xpaths to find the elements we're extracting.
 
+See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication. 
+
 Ideally spiders should be driven from the outlet's sitemap. Ideally you'll find the sitemap from /robots.txt. If you don't find it there, try /sitemap.xml or /sitemap.txt. If you can't find a sitemap, use a crawling spider (you can copy from `thenewage`).
 
 Send a pull request or get in touch.
@@ -24,11 +26,15 @@ We do not make news content available for public consumption. We simply store an
 
 ### Set up your development environment
 
-Clone this repository
-
+Fork this repository on GitHub and clone your fork:
 ```bash
-git clone https://github.com/public-people/scrape-news.git
+git clone https://github.com/your-name/scrape-news.git
 ```
+or
+```bash
+git clone git@github.com:your-name/scrape-news.git
+```
+(Make sure to replace ```your-name```.)
 
 Create a Python 2 virtual environment for this project inside the cloned project directory (Note: your virtual environment program might not be called `pyvenv` -
 ```bash
@@ -36,12 +42,16 @@ cd scrape-news
 pyvenv env
 ```
 
-...
+If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default:
+```bash
+cd scrape-news
+virtualenv .env2
+source .env2/bin/activate
+pip install -r requirements.txt
+```
+(When you're done later, use `deactivate` to leave your virtual environment.)
 
-
-
-
-Run a scraper to check that your environment is working properly. The argument `since_lastmod` is the earliest sitemap file and page the scraper will include. The setting `ITEMS_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
+Run a scraper to check that your environment is working properly. The argument `since_lastmod` is the earliest sitemap file and page the scraper will include. The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
 
 ```bash
 scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
@@ -75,6 +85,108 @@ when it reaches articles that are after the earliest accepted date, it will actu
  'url': 'https://www.iol.co.za/personal-finance/stanlib-may-further-reduce-fund-offering-14717297'}
 ```
 
+### Make a spider
+
+First, add this repository as a remote and make sure your local master is up to date:
+```bash
+git remote add upstream git@github.com:public-people/scrape-news.git
+git fetch upstream
+git checkout master
+git merge upstream/master
+```
+
+Create and check out a branch for the spider you're making:
+```bash
+git checkout -b newssite
+```
+(Replace ```newssite``` with the name of the publication you're making a spider for.)
+
+Copy a spider from the repository and amend it as necessary. When it's done, ```git add``` it and ```commit``` the change to your working branch.
+
+### Test your responses
+
+To test individual xpath or css responses you can use the scrapy shell:
+```bash
+scrapy shell "https://www.newssite.co.za/article-url"
+```
+If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like
+```html
+<h1 class="article-title">Title of article</h1>
+```
+highlighted. In the scrapy shell you can then enter
+```bash
+>>> response.css('h1.article-title').xpath('text()').extract_first()
+```
+to get the title. 
+
+Now that you've checked that this works and doesn't have some unintended consequence, you can copy it into the relevant part of your spider; in this case:
+```python
+def parse(self, response):
+    ...
+    title = response.css('h1.article-title').xpath('text()').extract_first()
+    ...
+```
+
+#### Using css instead of xpath for classes
+
+You could have also used the xpath in the above:
+```bash
+>>> response.xpath('//h1/[@class="article-title"]/text()').extract_first()
+```
+but the preference is to use css lookup for classes.
+
+The reason for this is that xpaths can be brittle in more complicated instances. Consider the case of
+```html
+<div class="byline pin-right">John Smith</div>
+```
+The only way an xpath query will work here is if you give the exact class name:
+```bash
+>>> response.xpath('//div/[@class="byline pin-right"]/text()').extract_first()
+```
+which means that if the same publication uses, say, ```byline pin-left``` for certain articles the spider won't get a response for 'byline'. 
+(And if you were using ```extract()``` instead of ```extract_first()``` it would get an error.) 
+The safer option is therefore to use the following instead:
+```bash
+>>> response.css('div.byline').xpath('text()').extract_first()
+```
+
+#### Make a pull request
+
+Once your spider is ready for review, first make sure your local master is up to date:
+```bash
+git fetch upstream
+git checkout master
+git merge upstream/master
+```
+and merge any changes into your working branch:
+```bash
+git merge master newssite
+```
+
+Then push your ```newssite``` branch to your fork on GitHub (use ```git remote -v``` to check the names of your remotes):
+```bash
+git push origin newssite
+```
+Go to [Pull requests](https://github.com/public-people/scrape-news/compare), choose to 'compare across forks', and compare the ```base fork: public-people/scrape-news```, ```base: master``` to ```head fork: your-name/scrape-news```, ```compare: newssite```, and make a new pull request!   
+
+If you make some changes to your spider after your initial pull request, do the following to update the PR:
+```bash
+# check you're up to date
+git fetch upstream
+git checkout master
+git merge upstream/master
+git merge master newssite
+
+# push your changes
+git checkout newssite
+git add newssite.py
+git commit -m "Make changes to newssite spider to incorporate/address review comments"
+git push origin newssite
+``` 
+
+If ```git fetch upstream``` doesn't return anything you can skip the next steps until checking out your ```newssite``` branch.
+
+Pushing the same branch again will automatically update your existing PR.
 
 ## Deployment
 
