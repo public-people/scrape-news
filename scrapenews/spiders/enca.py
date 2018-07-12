@@ -7,7 +7,7 @@ from datetime import datetime
 import re
 
 
-class ThenewageSpider(CrawlSpider):
+class encaSpider(CrawlSpider):
     name = 'enca'
     allowed_domains = ['www.enca.com']
     start_urls = ['http://www.enca.com/news-stream/south-africa']
