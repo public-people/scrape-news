@@ -12,10 +12,6 @@ It's really easy to contribute spiders. Basically you can copy an existing spide
 
 See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication. 
 
-Ideally spiders should be driven from the outlet's sitemap. Ideally you'll find the sitemap from /robots.txt. If you don't find it there, try /sitemap.xml or /sitemap.txt. If you can't find a sitemap, use a crawling spider (you can copy from `thenewage`).
-
-Send a pull request or get in touch.
-
 Next, go get started at [Development](#development)
 
 ## Copyright of news content
@@ -101,7 +97,13 @@ git checkout -b newssite
 ```
 (Replace ```newssite``` with the name of the publication you're making a spider for.)
 
-Copy a spider from the repository and amend it as necessary. When it's done, ```git add``` it and ```commit``` the change to your working branch.
+Ideally spiders should be driven from the outlet's sitemap. Ideally you'll find the sitemap from /robots.txt. If you don't find it there, try /sitemap.xml or /sitemap.txt.
+
+If the newssite uses a _useful_ sitemap index (see for example [https://www.timeslive.co.za/sitemap/](https://www.timeslive.co.za/sitemap/)), use a sitemap spider.
+
+If the sitemap index is less useful (see for example [https://www.dailyvoice.co.za/sitemap.xml](https://www.dailyvoice.co.za/sitemap.xml)), or if there isn't a sitemap index (or no sitemap at all), use a crawling spider.
+
+Copy a spider from the repository and amend it as necessary: a good example of a sitemap spider is [iol](https://github.com/public-people/scrape-news/blob/master/scrapenews/spiders/iol.py); a good example of a crawling spider is [dfa](https://github.com/public-people/scrape-news/blob/master/scrapenews/spiders/dfa.py)).
 
 ### Test your responses
 
@@ -150,9 +152,25 @@ The safer option is therefore to use the following instead:
 >>> response.css('div.byline').xpath('text()').extract_first()
 ```
 
+#### Test and improve
+
+Once you have all your paths figured out (fun, right? – have a look at the existing spiders for ideas on how to get around any issues you encounter, or shout on Slack), you can run it a couple of times to check that it works as expected and refine it. This is especially important for crawling spiders.
+
+Exit from the scrapy shell (```Ctrl+D```) and run your spider:
+```bash
+scrapy crawl newssite -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
+```
+(Don't include the ```since_lastmod``` specification if it's a crawling spider.)
+
+If it runs, yay! But the odds are that there will be some errors thrown; so search for the word 'error' in your output and see if you can figure out what's causing it – there's usually a pattern.
+
+Another thing to look out for is 'ignoring': if the urls being ignored by your spider follow a pattern, consider adding some paths to 'deny' instead to save resources. 
+
 #### Make a pull request
 
-Once your spider is ready for review, first make sure your local master is up to date:
+Once your spider is done and ready for review, ```git add``` it and ```commit``` the change to your working branch.
+
+Then, first make sure your local master is up to date:
 ```bash
 git fetch upstream
 git checkout master
