@@ -10,7 +10,7 @@ We need very broad coverage of news outlets. Contributed spiders are very welcom
 
 It's really easy to contribute spiders. Basically you can copy an existing spider and change the xpaths to find the elements we're extracting.
 
-See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication. 
+See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication.
 
 Next, go get started at [Development](#development)
 
@@ -119,7 +119,7 @@ highlighted. In the scrapy shell you can then enter
 ```bash
 >>> response.css('h1.article-title').xpath('text()').extract_first()
 ```
-to get the title. 
+to get the title.
 
 Now that you've checked that this works and doesn't have some unintended consequence, you can copy it into the relevant part of your spider; in this case:
 ```python
@@ -129,7 +129,7 @@ def parse(self, response):
     ...
 ```
 
-#### Using css instead of xpath for classes
+#### Using xpath css instead of css for classes
 
 You could have also used the xpath in the above:
 ```bash
@@ -145,8 +145,8 @@ The only way an xpath query will work here is if you give the exact class name:
 ```bash
 >>> response.xpath('//div/[@class="byline pin-right"]/text()').extract_first()
 ```
-which means that if the same publication uses, say, ```byline pin-left``` for certain articles the spider won't get a response for 'byline'. 
-(And if you were using ```extract()``` instead of ```extract_first()``` it would get an error.) 
+which means that if the same publication uses, say, ```byline pin-left``` for certain articles the spider won't get a response for 'byline'.
+(And if you were using ```extract()``` instead of ```extract_first()``` it would get an error.)
 The safer option is therefore to use the following instead:
 ```bash
 >>> response.css('div.byline').xpath('text()').extract_first()
@@ -164,7 +164,7 @@ scrapy crawl newssite -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
 
 If it runs, yay! But the odds are that there will be some errors thrown; so search for the word 'error' in your output and see if you can figure out what's causing it – there's usually a pattern.
 
-Another thing to look out for is 'ignoring': if the urls being ignored by your spider follow a pattern, consider adding some paths to 'deny' instead to save resources. 
+Another thing to look out for is 'ignoring': if the urls being ignored by your spider follow a pattern, consider adding some paths to 'deny' instead to save resources.
 
 #### Make a pull request
 
@@ -200,7 +200,7 @@ git checkout newssite
 git add newssite.py
 git commit -m "Make changes to newssite spider to incorporate/address review comments"
 git push origin newssite
-``` 
+```
 
 If ```git fetch upstream``` doesn't return anything you can skip the next steps until checking out your ```newssite``` branch.
 
