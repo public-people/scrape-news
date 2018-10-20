@@ -8,31 +8,31 @@ import pytz
 SAST = pytz.timezone('Africa/Johannesburg')
 
 
-class IOLSpider(SitemapSpider):
-    name = 'iol'
-    allowed_domains = ['www.iol.co.za']
+class HeraldLiveSpider(SitemapSpider):
+    name = 'hearaldlive'
+    allowed_domains = ['www.heraldlive.co.za']
 
-    sitemap_urls = ['https://www.iol.co.za/robots.txt']
+    sitemap_urls = ['www.heraldlive.co.za/robots.txt']
     sitemap_follow = [
-        '^https://www.iol.co.za/news/((?!eish).)*$',
-        'www.iol.co.za/business-report',
-        'www.iol.co.za/politics',
-        'www.iol.co.za/personal-finance',
+        '^https://www.heraldlive.co.za/news/((?!eish).)*$'
     ]
 
-    publication_name = 'IOL News'
+    publication_name = 'Herald Live'
 
     def parse(self, response):
-
-        title = response.xpath('//header/h1/text()').extract_first()
-        self.logger.info('%s %s', response.url, title)
+        title = response.xpath('//head/title/text()').extract_first()
+        self.logger.info('{} {}'.format(response.url, title))
         article_body = response.xpath('//div[@itemprop="articleBody"]')
         if article_body:
-            body_html = article_body.extract_first()
-            byline = response.xpath('//span[@itemprop="author"]/strong/text()').extract_first()
-            publication_date_str = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
+            body_html = article_body.extract_first().strip()
+            byline_temp = response.css('.article-author').xpath('text()').extract_first().strip()
+            byline = byline_temp[:-2] if byline_temp[-2:] == " -" else byline_temp
+            publication_date_str = response.css('.article-pub-date').xpath('text()').extract_first().strip()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%dT%H:%M')
+            try:
+                publication_date = datetime.strptime(publication_date_str, '%-d %B %Y')
+            except ValueError:
+                if
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()
