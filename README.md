@@ -129,13 +129,13 @@ def parse(self, response):
     ...
 ```
 
-#### Using xpath css instead of css for classes
+#### Do not use xpath for css classes
 
-You could have also used the xpath in the above:
+You could have also used the xpath in the above, but the preference is to use css lookup for classes. e.g.:
+
 ```bash
 >>> response.xpath('//h1/[@class="article-title"]/text()').extract_first()
 ```
-but the preference is to use css lookup for classes.
 
 The reason for this is that xpaths can be brittle in more complicated instances. Consider the case of
 ```html
@@ -185,7 +185,7 @@ Then push your ```newssite``` branch to your fork on GitHub (use ```git remote -
 ```bash
 git push origin newssite
 ```
-Go to [Pull requests](https://github.com/public-people/scrape-news/compare), choose to 'compare across forks', and compare the ```base fork: public-people/scrape-news```, ```base: master``` to ```head fork: your-name/scrape-news```, ```compare: newssite```, and make a new pull request!   
+Go to [Pull requests](https://github.com/public-people/scrape-news/compare), choose to 'compare across forks', and compare the ```base fork: public-people/scrape-news```, ```base: master``` to ```head fork: your-name/scrape-news```, ```compare: newssite```, and make a new pull request!
 
 If you make some changes to your spider after your initial pull request, do the following to update the PR:
 ```bash
