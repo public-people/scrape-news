@@ -214,6 +214,8 @@ We use cron to schedule the scrapers regularly.
 
 ### Deploy a scraper to scrapyd
 
+`scrapyd-deploy`
+
 ### Schedule a scraper
 
 SitemapSpider scrapers can run daily, fetching only the latest articles. Crawling scrapers have to visit every page on the site so we only run them weekly.
