@@ -13,10 +13,9 @@ class mgSpider(SitemapSpider):
     allowed_domains = ['mg.co.za']
 
     sitemap_urls = ['https://mg.co.za/robots.txt']
-    # Could not find a way to limit it to South African interest only.
+
     sitemap_follow = [
-        '/article/',
-        #'^http(s?):\/\/mg\.co\.za\/(?!(tag|section\/news-world)).*$',
+        '/sitemaps/',
     ]
 
     publication_name = 'Mail & Guardian'
