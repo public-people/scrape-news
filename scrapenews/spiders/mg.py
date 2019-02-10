@@ -24,6 +24,11 @@ SKIP_STRINGS = [
     'guardian.co.uk',
 ]
 
+IGNORE_SECTIONS = [
+    'world',
+    'sport',
+]
+
 
 class MGSpider(SitemapSpider):
     name = 'mg'
@@ -43,13 +48,16 @@ class MGSpider(SitemapSpider):
 
     def parse(self, response):
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
-        publication_date_str = response.xpath('//meta[@name="publicationdate"]/@content').extract_first()
-        publication_date = datetime.strptime(publication_date_str, '%d/%m/%Y')
-        publication_date = SAST.localize(publication_date)
 
+        ## Skip excluded sections
+        section = response.css('a.section').xpath('text()').extract_first()
+        if section.lower() in IGNORE_SECTIONS:
+            self.logger.info("Skipping %s because section is %s", canonical_url, section)
+            return
+
+        ## Skip syndicated content
         body_html = "".join(response.css("#body_content p").extract())
         body_text = remove_tags(body_html, encoding='utf-8')
-
         for string in SKIP_STRINGS:
             suffix = body_text[-20:]
             if unicode(string, 'utf-8') in suffix:
@@ -58,6 +66,11 @@ class MGSpider(SitemapSpider):
                                  suffix,
                                  string)
                 return
+
+        publication_date_str = response.xpath('//meta[@name="publicationdate"]/@content').extract_first()
+        publication_date = datetime.strptime(publication_date_str, '%d/%m/%Y')
+        publication_date = SAST.localize(publication_date)
+
 
         item = ScrapenewsItem()
         item['body_html'] = response.css("#body_content").extract_first()
