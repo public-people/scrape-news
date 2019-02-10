@@ -31,8 +31,8 @@ class mgSpider(SitemapSpider):
 
         item = ScrapenewsItem()
         item['body_html'] = " ".join(response.css("#body_content").extract())
-        item['title'] = response.xpath('//meta[@property="og:title"]/@content').extract_first()
-        item['byline'] = response.xpath('//meta[@property="og:description"]/@content').extract_first()
+        item['title'] = response.xpath('//meta[@name="title"]/@content').extract_first()
+        item['byline'] = response.xpath('//meta[@name="author"]/@content').extract_first()
         item['published_at'] = publication_date.isoformat()
         item['retrieved_at'] = datetime.utcnow().isoformat()
         item['url'] = response.url
