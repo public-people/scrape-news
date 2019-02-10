@@ -26,7 +26,7 @@ class mgSpider(SitemapSpider):
         publication_date = SAST.localize(publication_date)
 
         item = ScrapenewsItem()
-        item['body_html'] = " ".join(response.css("#body_content p").xpath("text()").extract())
+        item['body_html'] = " ".join(response.css("#body_content").extract())
         item['title'] = response.xpath('//meta[@property="og:title"]/@content').extract_first()
         item['byline'] = response.xpath('//meta[@property="og:description"]/@content').extract_first()
         item['published_at'] = publication_date.isoformat()
