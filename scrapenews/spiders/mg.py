@@ -18,6 +18,10 @@ class mgSpider(SitemapSpider):
         '/sitemaps/',
     ]
 
+    sitemap_rules = [
+        ('mg.co.za/article', 'parse'),
+    ]
+
     publication_name = 'Mail & Guardian'
 
     def parse(self, response):
