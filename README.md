@@ -90,11 +90,11 @@ Public People needs the following fields:
 | byline | String of all the authors' names and surnames as presented on the article page. |
 | file_name | Usually the "slug" of the article in the URL. Some simple clear name for the article if it was a file. |
 | publication_name | e.g. News24 - this can usually be hardcoded in the scraper and doesn't need to be scraped from the page. |
-| published_at | ISO 8601 date - could even be partial, like just the year-month-date part excluding time.  |
-| retrieved_at |  |
-| spider_name |  |
-| title |  |
-| url | canonical url meta tag value if available |
+| published_at | ISO 8601 date - could even be partial, like just the year-month-date part excluding time. There's often a meta tag or an attribute on the element in the content where the date is for search engines - that value is often already in ISO 8601 format. |
+| retrieved_at | ISO 8601 date of current date/time to know when we scraped it. |
+| spider_name | Generally the module name. |
+| title | Article title. |
+| url | This is used as the unique identifier for this article for deduplication, so use the [canonical url meta tag value](https://yoast.com/rel-canonical/) if available, otherwise just try to parse out the unique part of the URL from `resposne.url` and exclude things like query string paramaters and URL fragment  identifier. |
 
 First, add this repository as a remote and make sure your local master is up to date:
 ```bash
