@@ -22,35 +22,94 @@ We do not make news content available for public consumption. We simply store an
 
 ### Set up your development environment
 
+#### Clone
+
 Fork this repository on GitHub and clone your fork:
+
 ```bash
-git clone https://github.com/your-name/scrape-news.git
+$ git clone https://github.com/your-name/scrape-news.git
 ```
 or
+
 ```bash
-git clone git@github.com:your-name/scrape-news.git
+$ git clone git@github.com:your-name/scrape-news.git
 ```
+
 (Make sure to replace ```your-name```.)
 
-Create a Python 2 virtual environment for this project inside the cloned project directory (Note: your virtual environment program might not be called `pyvenv` -
-```bash
-cd scrapenews
-pyvenv env
-```
-
-If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default:
-```bash
-cd scrapenews
-virtualenv .env2
-source .env2/bin/activate
-pip install -r requirements.txt
-```
-
-Run a scraper to check that your environment is working properly. The argument `since_lastmod` is the earliest sitemap file and page the scraper will include. The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
+Navigate to the repo.
 
 ```bash
-scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
+$ cd <PATH_TO_REPO>
 ```
+
+### Setup virtual environment
+
+1. Create a virtual environment called `venv`.
+    ```bash
+    $ make new-env
+    ```
+2. Activate it.
+    ```bash
+    $ source venv/bin/activate
+    ```
+3. Install main dependencies.
+    ```bash
+    $ make install
+    ```
+4. Install dev dependencies.
+    ```bash
+    $ make dev-install
+    ```
+
+#### Run
+
+Note: Always activate the project's environment before using it.
+
+```bash
+$ source venv/bin/activate
+```
+
+##### List available spiders in the project
+
+
+```bash
+$ make list
+scrapenews/utils/list_spiders.py # This is script you just ran.
+businesslivecrawl
+businesslivesitemap
+dailymaverick
+dailyvoice
+dfa
+dispatchlive
+enca
+ewn
+groundup
+iol
+mg
+news24
+rekordnorth
+sabc
+sowetanlive
+thenewage
+timeslive
+```
+
+We will use these crawler names in the next step. Note that these names are generated from _classes_ in the [spiders](/scrapenews/spiders/) directory and not the _filenames_.
+
+##### Run scraper
+
+Run a scraper using the command below to check that your environment is working properly. Note that this _can_ be done from the root directory because of how the `scrapy` library works.
+
+```bash
+$ scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
+```
+
+- The argument following `crawl` is the name of the scraper (e.g. `iol`). See output from the previous section.
+- The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
+- The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
+
+##### Output
 
 If it's working correctly, it will output a lot of information:
 
@@ -94,7 +153,7 @@ Public People needs the following fields:
 | retrieved_at | ISO 8601 date of current date/time to know when we scraped it. |
 | spider_name | Generally the module name. |
 | title | Article title. |
-| url | This is used as the unique identifier for this article for deduplication, so use the [canonical url meta tag value](https://yoast.com/rel-canonical/) if available, otherwise just try to parse out the unique part of the URL from `resposne.url` and exclude things like query string paramaters and URL fragment  identifier. |
+| url | This is used as the unique identifier for this article for deduplication, so use the [canonical url meta tag value](https://yoast.com/rel-canonical/) if available, otherwise just try to parse out the unique part of the URL from `response.url` and exclude things like query string parameters and URL fragment  identifier. |
 
 First, add this repository as a remote and make sure your local master is up to date:
 ```bash
@@ -121,14 +180,19 @@ Copy a spider from the repository and amend it as necessary: a good example of a
 ### Test your responses
 
 To test individual xpath or css responses you can use the scrapy shell:
+
 ```bash
 scrapy shell "https://www.newssite.co.za/article-url"
 ```
-If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like
+
+If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like this highlighted.
+
 ```html
 <h1 class="article-title">Title of article</h1>
 ```
-highlighted. In the scrapy shell you can then enter
+
+In the scrapy, shell you can then enter
+
 ```bash
 >>> response.css('h1.article-title').xpath('text()').extract_first()
 ```
@@ -235,7 +299,7 @@ SitemapSpider scrapers can run daily, fetching only the latest articles. Crawlin
 
 Tunnel a connection to the server if you're not scheduling it from the server:
 
-```
+```bash
 ssh -L 6800:localhost:6800 username@hostname
 ```
 
@@ -243,12 +307,12 @@ ssh -L 6800:localhost:6800 username@hostname
 
 SitemapSpiders take an argument `since_lastmod` which is an ISO format date filtering sitemaps and links in sitemaps. To do a complete scrape, just set it to a date very long ago, like `1900-01-01`.
 
-```
+```bash
 curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=iol -d setting=ALEPH_API_KEY=... -d since_lastmod=$(date +%Y-%m-%d -d "5 day ago")
 ```
 
 #### Schedule a crawling spider
 
-```
+```bash
 curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=thenewage -d setting=ALEPH_API_KEY=...
 ```
