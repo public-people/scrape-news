@@ -11,6 +11,10 @@ class TestLib(TestCase):
         result = lib.parse_date(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22))
 
+        publication_date_str = "2019-11-22 09:10:11.000Z"
+        result = lib.parse_date(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2019, 11, 22))
+
         publication_date_str = "2019-11-22"
         result = lib.parse_date(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22))
@@ -20,7 +24,15 @@ class TestLib(TestCase):
         result = lib.parse_date_hour_min(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10))
 
+        publication_date_str = "2019-11-22 09:10:11.000Z"
+        result = lib.parse_date_hour_min(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10))
+
         publication_date_str = "2019-11-22T09:10"
+        result = lib.parse_date_hour_min(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10))
+
+        publication_date_str = "2019-11-22 09:10"
         result = lib.parse_date_hour_min(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10))
 
@@ -30,5 +42,9 @@ class TestLib(TestCase):
         self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10, 11))
 
         publication_date_str = "2019-11-22T09:10:00"
+        result = lib.parse_date_hour_min_sec(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10, 0))
+
+        publication_date_str = "2019-11-22 09:10:00"
         result = lib.parse_date_hour_min_sec(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10, 0))
