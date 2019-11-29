@@ -9,6 +9,22 @@ from requests.adapters import HTTPAdapter
 logger = logging.getLogger(__name__)
 
 
+def _parse_meta(item):
+    return {
+        'crawler': item['spider_name'],
+        'source_url': item['url'],
+        'title': item['title'],
+        'file_name': item['file_name'],
+        'extension': 'html',
+        'encoding': 'utf-8',
+        'foreign_id': item['url'],
+        'mime_type':  'text/html',
+        'countries': ['za'],
+        'retrieved_at': item['retrieved_at'],
+        'published_at': item['published_at'],
+    }
+
+
 class AlephPipeline(object):
 
     def __init__(self, api_key, aleph_host):
@@ -29,25 +45,12 @@ class AlephPipeline(object):
             logger.info("Not ingesting already indexed %s", item['url'])
             return item
 
-        meta = {
-            'crawler': item['spider_name'],
-            'source_url': item['url'],
-            'title': item['title'],
-            'file_name': item['file_name'],
-            'extension': 'html',
-            'encoding': 'utf-8',
-            'foreign_id': item['url'],
-            'mime_type':  'text/html',
-            'countries': ['za'],
-            'retrieved_at': item['retrieved_at'],
-            'published_at': item['published_at'],
-        }
-
         collection_id = self.get_collection_id(
             slugify(unicode(item['publication_name'])),
             item['publication_name']
         )
         url = self.make_url('collections/%s/ingest' % collection_id)
+        meta = _parse_meta(item)
 
         logger.info("Sending '%s' to %s", item['title'], url)
         logger.debug("meta = %r", meta)
@@ -70,6 +73,7 @@ class AlephPipeline(object):
             'filter:foreign_id': foreign_id
         })
         r.raise_for_status()
+
         data = r.json()
         for coll in data.get('results'):
             if coll.get('foreign_id') == foreign_id:
@@ -82,20 +86,26 @@ class AlephPipeline(object):
             'foreign_id': foreign_id
         })
         r.raise_for_status()
+
         return r.json().get('id')
 
     def make_url(self, path):
         prefix = urljoin(self.aleph_host, '/api/2/')
+
         return urljoin(prefix, path)
 
     def url_is_already_indexed(self, source_url):
         logger.info("Checking if already indexed: %s", source_url)
+
         url = self.make_url('documents')
         r = self.session.get(url, params={'filter:source_url': source_url}, timeout=10)
         r.raise_for_status()
+
         data = r.json()
         if data['total'] not in (0, 1):
-            raise Exception(("Unexpected number of existing documents (%r) for %s"
-                             "\nrequested %r")
-                            % (data['total'], source_url, r.url))
+            raise Exception(
+                "Unexpected number of existing documents (%r) for %s"
+                "\nrequested %r" % (data['total'], source_url, r.url)
+            )
+
         return data['total'] == 1
