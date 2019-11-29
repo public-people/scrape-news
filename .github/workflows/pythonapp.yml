@@ -4,21 +4,22 @@ on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up Python 2.7
-        uses: actions/setup-python@v1
-        with:
-          python-version: 2.7
-      - name: Install dependencies
-        run: make install
-      - name: Unit tests
-        run: make unit
-      - name: Install test dependencies
-        run: make dev-install
-      - name: Lint with flake8
-        run: make lint
-      - name: Lint for PY3 compatibility
-        run: make lint-py3
+    - uses: actions/checkout@v1
+    - name: Set up Python 2.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 2.7
+    - name: Install dependencies
+      run: make install
+    - name: Unit tests
+      run: make unit
+    - name: Install test dependencies
+      run: make dev-install
+    - name: Lint with flake8
+      run: make lint
+    - name: Lint for PY3 compatibility
+      run: make lint-py3
