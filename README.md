@@ -99,7 +99,7 @@ We will use these crawler names in the next step. Note that these names are gene
 
 ##### Run scraper
 
-Run a scraper using the command below to check that your environment is working properly. Note that this _can_ be done from the root directory because of how the `scrapy` library works.
+Run a scraper using the command below to check that your environment is working properly. This can be done from the project root because of how the `scrapy` library works.
 
 ```bash
 $ scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
