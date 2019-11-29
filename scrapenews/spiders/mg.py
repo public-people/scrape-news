@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
-from .sitemap import SitemapSpider
-from scrapenews.items import ScrapenewsItem
-from datetime import datetime
 import pytz
+from datetime import datetime
 from w3lib.html import remove_tags
+
+from scrapenews.items import ScrapenewsItem
+from .sitemap import SitemapSpider
+
 
 SAST = pytz.timezone('Africa/Johannesburg')
 

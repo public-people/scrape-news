@@ -1,7 +1,9 @@
+import logging
+
 import scrapy
 from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 from scrapy.http import Request
-import logging
+
 
 logger = logging.getLogger(__name__)
 

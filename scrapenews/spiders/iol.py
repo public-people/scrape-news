@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import pytz
+from datetime import datetime
 
 from scrapenews import lib
 from scrapenews.items import ScrapenewsItem
