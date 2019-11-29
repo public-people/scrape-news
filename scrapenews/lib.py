@@ -6,11 +6,13 @@ def parse_date(value):
 
 
 def parse_date_hour_min(value):
-    return datetime.datetime.strptime(value[:16], '%Y-%m-%dT%H:%M')
+    value = value.replace("T", " ")
+    return datetime.datetime.strptime(value[:16], '%Y-%m-%d %H:%M')
 
 
 def parse_date_hour_min_sec(value):
     """
     Ignore parse datetime string down to seconds, ignoring microseconds.
     """
-    return datetime.datetime.strptime(value[:19], '%Y-%m-%dT%H:%M:%S')
+    value = value.replace("T", " ")
+    return datetime.datetime.strptime(value[:19], '%Y-%m-%d %H:%M:%S')
