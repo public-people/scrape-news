@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import logging
 import requests
 import json
-from urlparse import urljoin
+from six.moves.urllib.parse import urljoin
 from slugify import slugify
 from requests.adapters import HTTPAdapter
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ class AlephPipeline(object):
             return item
 
         collection_id = self.get_collection_id(
-            slugify(unicode(item['publication_name'])),
+            slugify(six.text_type(item['publication_name'])),
             item['publication_name']
         )
         url = self.make_url('collections/%s/ingest' % collection_id)
