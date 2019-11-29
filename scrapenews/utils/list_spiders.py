@@ -16,7 +16,7 @@ def get_spiders():
     return {name: spider_loader.load(name) for name in sorted(names)}
 
 
-def test():
+def print_table():
     spiders = get_spiders()
 
     print("Name                 |  Class")
@@ -25,5 +25,12 @@ def test():
         print("{:20} | {}".format(k, v.__name__))
 
 
+def print_list():
+    spiders = get_spiders()
+
+    for k in sorted(spiders.keys()):
+        print(k)
+
+
 if __name__ == '__main__':
-    test()
+    print_list()
