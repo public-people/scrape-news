@@ -6,5 +6,5 @@ def parse_date(value):
 
 
 # import lib
-def parse_date_hours_minutes(value):
+def parse_date_hour_min(value):
     return datetime.datetime.strptime(value[:16], '%Y-%m-%dT%H:%M')
