@@ -29,3 +29,6 @@ test-iol:
 	# Test a certain crawler without using the upload pipeline.
 	# Note that is works from the project root because of how scrapy runs.
 	scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01
+
+spiders:
+	scrapenews/utils/list_spiders.py
