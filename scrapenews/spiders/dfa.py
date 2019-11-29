@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+import pytz
+from datetime import datetime
 
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
-from datetime import datetime
-import pytz
+
 
 SAST = pytz.timezone('Africa/Johannesburg')
+
 
 class dfaSpider(CrawlSpider):
     name = 'dfa'

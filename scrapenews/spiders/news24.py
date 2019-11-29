@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import pytz
+from datetime import datetime
 
 from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
-from datetime import datetime
-import pytz
+
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
