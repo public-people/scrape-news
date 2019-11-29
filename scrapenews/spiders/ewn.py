@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import pytz
+from datetime import datetime
 
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+
 from scrapenews.items import ScrapenewsItem
-from datetime import datetime
-import pytz
+from scrapenews import lib
+
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
@@ -37,8 +40,8 @@ class ewnSpider(CrawlSpider):
             byline = response.css('.byline span[itemprop="author"] a ::text').extract_first()
 
             publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
-            # alas no time portion: possibly use timelib to 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
+            # alas no time portion: possibly use timelib to
+            publication_date = lib.parse_date(publication_date_str)
             # datetime.datetime(2018, 6, 14, 11, 0)
             publication_date = SAST.localize(publication_date)
             # datetime.datetime(2018, 6, 14, 11, 0, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)

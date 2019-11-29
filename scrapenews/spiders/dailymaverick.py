@@ -2,8 +2,9 @@
 import pytz
 from datetime import datetime
 
-from .sitemap import SitemapSpider
+from scrapenews import lib
 from scrapenews.items import ScrapenewsItem
+from .sitemap import SitemapSpider
 
 
 SAST = pytz.timezone('Africa/Johannesburg')
@@ -37,7 +38,7 @@ class DailMaverickSpider(SitemapSpider):
             byline = response.xpath('//meta[@name="author"]/@content').extract_first()
             publication_date_str = response.xpath('//meta[@name="published"]/@content').extract_first()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
+            publication_date = lib.parse_date(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()

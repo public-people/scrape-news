@@ -2,8 +2,9 @@
 import pytz
 from datetime import datetime
 
-from .sitemap import SitemapSpider
 from scrapenews.items import ScrapenewsItem
+from scrapenews import lib
+from .sitemap import SitemapSpider
 
 
 SAST = pytz.timezone('Africa/Johannesburg')
@@ -38,7 +39,7 @@ class News24Spider(SitemapSpider):
             publication_date_str = response.xpath('//span[@id="spnDate"]/text()').extract_first()
             accreditation = response.xpath('//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href').extract_first()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d %H:%M')
+            publication_date = lib.parse_date(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()

@@ -4,7 +4,9 @@ from datetime import datetime
 
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+
 from scrapenews.items import ScrapenewsItem
+from scrapenews import lib
 
 
 SAST = pytz.timezone('Africa/Johannesburg')
@@ -54,7 +56,7 @@ class groundupSpider(CrawlSpider):
                 body_html = article_body
             byline = response.xpath('//a[@rel="author"]/text()').extract_first()
             publication_date_str = response.xpath('//time/@datetime').extract_first()
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
+            publication_date = lib.parse_date(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             if body_html:
