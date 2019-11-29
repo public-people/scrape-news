@@ -34,13 +34,13 @@ git clone git@github.com:your-name/scrape-news.git
 
 Create a Python 2 virtual environment for this project inside the cloned project directory (Note: your virtual environment program might not be called `pyvenv` -
 ```bash
-cd scrape-news
+cd scrapenews
 pyvenv env
 ```
 
 If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default:
 ```bash
-cd scrape-news
+cd scrapenews
 virtualenv .env2
 source .env2/bin/activate
 pip install -r requirements.txt
@@ -112,7 +112,7 @@ git checkout -b newssite
 
 Ideally spiders should be driven from the outlet's sitemap. Ideally you'll find the sitemap from /robots.txt. If you don't find it there, try /sitemap.xml or /sitemap.txt.
 
-If the newssite uses a _useful_ sitemap index (see for example [https://www.timeslive.co.za/sitemap/](https://www.timeslive.co.za/sitemap/)), use a sitemap spider.
+If the ```newssite``` uses a _useful_ sitemap index (see for example [https://www.timeslive.co.za/sitemap/](https://www.timeslive.co.za/sitemap/)), use a sitemap spider.
 
 If the sitemap index is less useful (see for example [https://www.dailyvoice.co.za/sitemap.xml](https://www.dailyvoice.co.za/sitemap.xml)), or if there isn't a sitemap index (or no sitemap at all), use a crawling spider.
 
