@@ -7,6 +7,7 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
 from scrapenews.items import ScrapenewsItem
+from scrapenews import lib
 
 
 SAST = pytz.timezone('Africa/Johannesburg')
@@ -61,19 +62,21 @@ class DailyvoiceSpider(CrawlSpider):
             article_body = response.css('div.article-body')
             body_html = " ".join(article_body.xpath('//p').css('::text').extract())
             byline = response.xpath('//strong[@itemprop="name"]/text()').extract_first()
-            publication_date_str = response.xpath('//span[@itemprop="datePublished"]/text()').extract_first()
-            # u'18 June 2018, 09:01am' -- also tested with '8 June 2018, 09:20pm'
-            publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M%p')
-            # datetime.datetime(2018, 6, 18, 9, 1); datetime.datetime(2018, 6, 8, 21, 20)
+            publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
+
+            # Previously:
+            #   u'18 June 2018, 09:01am' -- also tested with '8 June 2018, 09:20pm'
+            #   '%d %B %Y, %I:%M%p'
+            publication_date = lib.parse_date_hour_min_sec(publication_date_str)
             publication_date = SAST.localize(publication_date)
-            # datetime.datetime(2018, 6, 8, 21, 20, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
+            published_at = publication_date.isoformat()
 
             if body_html:
                 item = ScrapenewsItem()
                 item['body_html'] = body_html
                 item['title'] = title
                 item['byline'] = byline
-                item['published_at'] = publication_date.isoformat()
+                item['published_at'] = published_at
                 item['retrieved_at'] = datetime.utcnow().isoformat()
                 item['url'] = canonical_url
                 item['file_name'] = response.url.split('/')[-1]
