@@ -17,3 +17,7 @@ def parse_date_hour_min_sec(value):
     """
     value = value.replace("T", " ")
     return datetime.datetime.strptime(value[:19], '%Y-%m-%d %H:%M:%S')
+
+
+def parse_long_month_hour_min_meridian(value):
+    return datetime.datetime.strptime(value, '%d %B %Y, %I:%M %p')
