@@ -2,6 +2,7 @@
 from datetime import datetime
 import pytz
 
+from scrapenews import lib
 from scrapenews.items import ScrapenewsItem
 from .sitemap import SitemapSpider
 
@@ -32,7 +33,7 @@ class IOLSpider(SitemapSpider):
             byline = response.xpath('//span[@itemprop="author"]/strong/text()').extract_first()
             publication_date_str = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%dT%H:%M')
+            publication_date = lib.parse_date_hour_min(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()
