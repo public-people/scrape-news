@@ -18,7 +18,7 @@ class dfaSpider(CrawlSpider):
     start_urls = ['https://rekordnorth.co.za/category/news-headlines/local-news/']
 
     article_link_extractor = LinkExtractor(
-        allow=('https://rekordnorth.co.za/\d+/', ),
+        allow=(r'https://rekordnorth.co.za/\d+/', ),
         allow_domains=allowed_domains
     )
     category_link_extractor = LinkExtractor(

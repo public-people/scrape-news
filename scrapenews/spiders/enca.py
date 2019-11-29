@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import scrapy
+from datetime import datetime
+
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+
 from scrapenews.items import ScrapenewsItem
-from datetime import datetime
-import re
 
 
 class encaSpider(CrawlSpider):
@@ -22,7 +22,7 @@ class encaSpider(CrawlSpider):
     def parse_item(self, response):
         title = response.css('header.article-header h1').xpath('text()').extract_first()
         self.logger.info('%s %s', response.url, title)
-        
+
         publication_date = response.css('.article-meta time').xpath('@datetime').extract_first()
         body_html = response.css('.article-text').extract_first()
 

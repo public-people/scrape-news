@@ -9,12 +9,12 @@ from w3lib.html import remove_tags
 SAST = pytz.timezone('Africa/Johannesburg')
 
 SKIP_STRINGS = [
-    '\xc2\xa9', # copyright
-    '\xe2\x80\x91', # NON-BREAKING HYPHEN
-    '\xe2\x80\x92', # FIGURE DASH
-    '\xe2\x80\x93', #EN DASH
-    '\xe2\x80\x94', # EM DASH
-    '\xe2\x80\x95', # HORIZONTAL BAR
+    '\xc2\xa9',      # copyright
+    '\xe2\x80\x91',  # NON-BREAKING HYPHEN
+    '\xe2\x80\x92',  # FIGURE DASH
+    '\xe2\x80\x93',  # EN DASH
+    '\xe2\x80\x94',  # EM DASH
+    '\xe2\x80\x95',  # HORIZONTAL BAR
     'Agence France-Presse',
     'AFP',
     'Sapa',
@@ -49,13 +49,13 @@ class MGSpider(SitemapSpider):
     def parse(self, response):
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
 
-        ## Skip excluded sections
+        # Skip excluded sections
         section = response.css('a.section').xpath('text()').extract_first()
         if section.lower() in IGNORE_SECTIONS:
             self.logger.info("Skipping %s because section is %s", canonical_url, section)
             return
 
-        ## Skip syndicated content
+        # Skip syndicated content
         body_html = "".join(response.css("#body_content p").extract())
         body_text = remove_tags(body_html, encoding='utf-8')
         for string in SKIP_STRINGS:
@@ -70,7 +70,6 @@ class MGSpider(SitemapSpider):
         publication_date_str = response.xpath('//meta[@name="publicationdate"]/@content').extract_first()
         publication_date = datetime.strptime(publication_date_str, '%d/%m/%Y')
         publication_date = SAST.localize(publication_date)
-
 
         item = ScrapenewsItem()
         item['body_html'] = response.css("#body_content").extract_first()

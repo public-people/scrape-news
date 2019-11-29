@@ -1,10 +1,14 @@
+import pytz
+from datetime import datetime
+
 from scrapy.spiders import SitemapSpider, CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+
 from scrapenews.items import ScrapenewsItem
-from datetime import datetime
-import pytz
+
 
 SAST = pytz.timezone('Africa/Johannesburg')
+
 
 class BusinessLiveMixin():
 
@@ -19,7 +23,8 @@ class BusinessLiveMixin():
         self.logger.info('%s %s', url, title)
 
         # Ignore premium content articles
-        is_premium_content = response.css('div.premium-alert').xpath("h3/text()").extract_first() == 'This article is reserved for our subscribers.'
+        is_premium_content = response.css('div.premium-alert').xpath("h3/text()")\
+            .extract_first() == 'This article is reserved for our subscribers.'
         if is_premium_content:
             self.logger.info("Ignoring premium content %s", url)
             return
@@ -50,7 +55,7 @@ class BusinessLiveMixin():
                 'bt': 'Business Times',
                 'ft': 'Financial Times'
             }
-        
+
             url_part = url.split('/')[3]
 
             item['publication_name'] = publication_urls.get(url_part, 'Business Day')

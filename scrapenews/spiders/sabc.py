@@ -33,7 +33,6 @@ class sabcSpider(CrawlSpider):
 
     publication_name = 'SABC News'
 
-
     def parse_item(self, response):
 
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
@@ -68,7 +67,6 @@ class sabcSpider(CrawlSpider):
             else:
                 self.logger.info("No body found for %s", response.url)
                 # should we be using canonical_url instead of response.url for the above?
-
 
     def filter_links(self, links):
         for link in links:

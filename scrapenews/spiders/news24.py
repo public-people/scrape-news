@@ -37,7 +37,9 @@ class News24Spider(SitemapSpider):
             body_html = article_body.extract_first()
             byline = response.xpath('//div[contains(@class, "ByLineWidth")]/p/text()').extract_first()
             publication_date_str = response.xpath('//span[@id="spnDate"]/text()').extract_first()
-            accreditation = response.xpath('//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href').extract_first()
+            accreditation = response.xpath(
+                '//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href'
+            ).extract_first()
 
             publication_date = lib.parse_date(publication_date_str)
             publication_date = SAST.localize(publication_date)

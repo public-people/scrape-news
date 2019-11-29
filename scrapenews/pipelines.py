@@ -52,10 +52,11 @@ class AlephPipeline(object):
         logger.info("Sending '%s' to %s", item['title'], url)
         logger.debug("meta = %r", meta)
 
-        r = self.session.post(url,
-                              data={'meta': json.dumps(meta)},
-                              files={'file': item['body_html']},
-                              timeout=10,
+        r = self.session.post(
+            url,
+            data={'meta': json.dumps(meta)},
+            files={'file': item['body_html']},
+            timeout=10,
         )
         if not r.status_code == requests.codes.ok:
             logger.error("%s\n%s", r.status_code, r.text)
