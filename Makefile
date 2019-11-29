@@ -20,7 +20,7 @@ lint:
 
 lint-py3:
 	# Check for PY3 compatibility.
-	pylint scrapenews --py3k
+	pylint --py3k scrapenews
 
 unit:
 	python -m unittest discover -s scrapenews/tests/unit -t scrapenews
