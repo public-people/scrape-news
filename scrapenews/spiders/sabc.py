@@ -6,6 +6,7 @@ from datetime import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
+from scrapenews import lib
 from scrapenews.items import ScrapenewsItem
 
 
@@ -48,8 +49,10 @@ class sabcSpider(CrawlSpider):
             article_body = response.css('div.post-content')
             body_html = " ".join(article_body.css('::text').extract())
             byline = response.css('span.author::text').extract_first().strip()
-            publication_date_str = response.css('span.create::text').extract_first().strip()
-            publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M %p')
+
+            # Ignore the first line which is a comment.
+            publication_date_str = response.xpath('//span[@class="create"]/text()').extract()[1]
+            publication_date = lib.parse_long_month_hour_min_meridian(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             if body_html:
