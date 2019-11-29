@@ -62,10 +62,10 @@ class MGSpider(SitemapSpider):
         for string in SKIP_STRINGS:
             suffix = body_text[-20:]
             if unicode(string, 'utf-8') in suffix:
-                self.logger.info("Skipping %s because suffix %r contains %r",
-                                 canonical_url,
-                                 suffix,
-                                 string)
+                self.logger.info(
+                    "Skipping %s because suffix %r contains %r",
+                    canonical_url, suffix, string
+                )
                 return
 
         publication_date_str = response.xpath('//meta[@name="publicationdate"]/@content').extract_first()

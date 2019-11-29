@@ -43,8 +43,10 @@ class groundupSpider(CrawlSpider):
 
         if og_type == 'article':
             subtitle = response.xpath('//p[@id="article_subtitle"]').css('::text').extract_first()
-            photo_caption = response.xpath('//figcaption[@id="article_primary_image_caption"]/text()').extract_first()
+            photo_caption = response.xpath('//figcaption[@id="article_primary_image_caption"]/text()')\
+                .extract_first()
             article_body = " ".join(response.xpath('//div[@id="article_body"]').css('::text').extract())
+
             if subtitle and photo_caption:
                 body_html = subtitle + photo_caption + article_body
             elif subtitle and not photo_caption:
@@ -53,6 +55,7 @@ class groundupSpider(CrawlSpider):
                 body_html = photo_caption + article_body
             else:
                 body_html = article_body
+
             byline = response.xpath('//a[@rel="author"]/text()').extract_first()
             publication_date_str = response.xpath('//time/@datetime').extract_first()
             publication_date = lib.parse_date(publication_date_str)

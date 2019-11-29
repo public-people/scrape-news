@@ -29,6 +29,7 @@ class TimesliveSpider(SitemapSpider):
 
         title = response.xpath('//h1/span/text()').extract_first()
         self.logger.info('%s %s', response.url, title)
+
         article_body = response.css('div.article-widget-text')
         if article_body:
             # join multiple text sections

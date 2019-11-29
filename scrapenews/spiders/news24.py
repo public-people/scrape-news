@@ -59,4 +59,5 @@ class News24Spider(SitemapSpider):
                 item['publication_name'] += " with " + accreditation[1:]
 
             yield item
+
         self.logger.info("")
