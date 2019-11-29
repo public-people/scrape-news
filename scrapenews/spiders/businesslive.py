@@ -34,7 +34,8 @@ class BusinessLiveMixin():
             # join multiple text sections
             body_html = " ".join(article_body.extract())
             byline = response.css('span.heading-author').xpath('text()').extract_first()
-            publication_date_str = response.css('div.article-pub-date').xpath('text()').extract_first().strip()
+            publication_date_str = response.css('div.article-pub-date')\
+                .xpath('text()').extract_first().strip()
             publication_date = datetime.strptime(publication_date_str, '%d %B %Y - %H:%M')
             publication_date = SAST.localize(publication_date)
 
@@ -70,7 +71,8 @@ class BusinessLiveSpider(BusinessLiveMixin, SitemapSpider):
     allowed_domains = ['www.businesslive.co.za']
 
     sitemap_urls = ['https://www.businesslive.co.za/sitemap.xml']
-    sitemap_follow = ['politics', 'companies', 'people', 'national', 'news', 'special-reports', 'economy', 'markets']
+    sitemap_follow = ['politics', 'companies', 'people', 'national', 'news',
+                      'special-reports', 'economy', 'markets']
     sitemap_rules = [('.*', 'parse_item')]
 
 
@@ -83,12 +85,16 @@ class BusinessLiveCrawlSpider(BusinessLiveMixin, CrawlSpider):
         # Extract links containing a date in the url and parse them with the spider's method parse_item
         Rule(LinkExtractor(
             allow=(r'\d{4}-\d{2}-\d{2}',),
-            deny=(r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',),
+            deny=(
+                r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',
+            ),
         ), callback='parse_item'),
 
         # Extract links matching these categories and follow links from them
         Rule(LinkExtractor(
             allow=(r'fm|bd|rdm|bt|ft',),
-            deny=(r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',)
+            deny=(
+                r'/(opinion|world|sport|life|multimedia|redzone|technology|popcorn|lifestyle|wsj|sign-up|careers)/',
+            )
         ), follow=True),
     )
