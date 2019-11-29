@@ -10,6 +10,14 @@ from scrapenews.items import ScrapenewsItem
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
+IGNORE_URLS = {
+    'https://www.dailyvoice.co.za/news/business',
+    'https://www.dailyvoice.co.za/news/international',
+    'https://www.dailyvoice.co.za/news/national',
+    'https://www.dailyvoice.co.za/news/politics',
+    'https://www.dailyvoice.co.za/news/western-cape',
+}
+
 
 class DailyvoiceSpider(CrawlSpider):
     name = 'dailyvoice'
@@ -87,21 +95,8 @@ class DailyvoiceSpider(CrawlSpider):
             elif '/news/international/' in link.url:
                 self.logger.info("Ignoring %s", link.url)
                 continue
-            elif link.url == 'https://www.dailyvoice.co.za/news/business':
+            elif link.url in IGNORE_URLS:
                 self.logger.info("Ignoring %s", link.url)
                 continue
-            elif link.url == 'https://www.dailyvoice.co.za/news/international':
-                self.logger.info("Ignoring %s", link.url)
-                continue
-            elif link.url == 'https://www.dailyvoice.co.za/news/national':
-                self.logger.info("Ignoring %s", link.url)
-                continue
-            elif link.url == 'https://www.dailyvoice.co.za/news/politics':
-                self.logger.info("Ignoring %s", link.url)
-                continue
-            elif link.url == 'https://www.dailyvoice.co.za/news/western-cape':
-                self.logger.info("Ignoring %s", link.url)
-                continue
-            # I'm assuming the above can be simplified but it works!
             else:
                 yield link
