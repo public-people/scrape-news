@@ -49,3 +49,12 @@ class TestLib(TestCase):
         publication_date_str = "2019-11-22 09:10:00"
         result = lib.parse_date_hour_min_sec(publication_date_str)
         self.assertEqual(result, datetime.datetime(2019, 11, 22, 9, 10, 0))
+
+    def test_parse_long_date_time(self):
+        publication_date_str = "27 November 2019, 6:43 PM"
+        result = lib.parse_long_month_hour_min_meridian(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2019, 11, 27, 18, 43, 0))
+
+        publication_date_str = "3 April 2000, 1:22 AM"
+        result = lib.parse_long_month_hour_min_meridian(publication_date_str)
+        self.assertEqual(result, datetime.datetime(2000, 4, 3, 1, 22, 0))
