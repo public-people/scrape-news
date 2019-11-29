@@ -32,7 +32,6 @@ class groundupSpider(CrawlSpider):
 
     publication_name = 'GroundUp'
 
-
     def parse_item(self, response):
 
         og_url = response.xpath('//meta[@property="og:url"]/@content').extract_first()
@@ -77,7 +76,6 @@ class groundupSpider(CrawlSpider):
             else:
                 self.logger.info("No body found for %s", response.url)
                 # should we be using og_url instead of response.url for the above?
-
 
     def filter_links(self, links):
         for link in links:

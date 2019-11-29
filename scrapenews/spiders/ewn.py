@@ -11,6 +11,7 @@ from scrapenews import lib
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
+
 class ewnSpider(CrawlSpider):
     name = 'ewn'
     allowed_domains = ['ewn.co.za']
