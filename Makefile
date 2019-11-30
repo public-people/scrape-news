@@ -1,7 +1,7 @@
 help:
 	@egrep '^\w*:' Makefile
 
-mkenv:
+new-env:
 	# Use the venv builtin module to create a virtual environment also called venv.
 	python3 -m venv venv
 
