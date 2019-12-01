@@ -18,6 +18,13 @@ Next, go get started at [Development](#development)
 
 We do not make news content available for public consumption. We simply store and index the news content and the original URL and publication date to provide search functionality similar to search engines. This project intends to provide better access to news on the publisher's website. It should be used to send readers to relevant news websites rather than to replace them.
 
+## Requirements
+
+- Python 3.5+
+- Python virtual environment with packages installed from [requirements.txt](/requirements.txt). This main library used [Scrapy](https://pypi.org/project/Scrapy/).
+- Setup _scrapyd_ (optional).
+- Aleph account and credentials for uploading results (optional).
+
 ## Development
 
 ### Set up your development environment
