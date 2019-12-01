@@ -10,7 +10,7 @@ We need very broad coverage of news outlets. Contributed spiders are very welcom
 
 It's really easy to contribute spiders. Basically you can copy an existing spider and change the xpaths to find the elements we're extracting.
 
-See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication.
+See the _In Progress_ column at [https://trello.com/b/9TVRB4gb/public-people](https://trello.com/b/9TVRB4gb/public-people) to see which publications are currently being tackled to avoid duplication.
 
 Next, go get started at [Development](#development)
 
@@ -51,6 +51,9 @@ $ cd <PATH_TO_REPO>
 ```
 
 ### Setup virtual environment
+
+The shortcut commands used in this doc come from the [Makefile](/Makefile) and can be run from the project root using the `make` command, as below.
+
 
 1. Create a virtual environment called `venv`.
     ```bash
