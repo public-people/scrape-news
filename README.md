@@ -119,7 +119,7 @@ Run a scraper using the command below to check that your environment is working 
 If you need to get a template crawl command quickly and then fill in with a crawler, run the following and then copy and paste the result to a new line.
 
 ```bash
-$ make test-help
+$ make quickstart
 scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 <CRAWLER>
 ```
 

@@ -24,7 +24,7 @@ unit:
 test-iol:
 	scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 iol
 
-test-help:
+quickstart:
 	@echo 'scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 <CRAWLER>'
 
 list:
