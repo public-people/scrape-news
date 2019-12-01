@@ -67,14 +67,13 @@ class DailyvoiceSpider(CrawlSpider):
             #   '%d %B %Y, %I:%M%p'
             publication_date = lib.parse_date_hour_min_sec(publication_date_str)
             publication_date = SAST.localize(publication_date)
-            published_at = publication_date.isoformat()
 
             if body_html:
                 item = ScrapenewsItem()
                 item['body_html'] = body_html
                 item['title'] = title
                 item['byline'] = byline
-                item['published_at'] = published_at
+                item['published_at'] = publication_date.isoformat()
                 item['retrieved_at'] = datetime.utcnow().isoformat()
                 item['url'] = canonical_url
                 item['file_name'] = response.url.split('/')[-1]
