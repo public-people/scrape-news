@@ -5,8 +5,6 @@ List available spiders as names and classes.
 Based on:
     https://stackoverflow.com/questions/46871133/get-all-spiders-class-name-in-scrapy/46871206
 """
-from __future__ import print_function
-from __future__ import absolute_import
 from scrapy import spiderloader
 from scrapy.utils import project
 

@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
+import json
 import logging
 import requests
-import json
+import six
 from six.moves.urllib.parse import urljoin
+
 from slugify import slugify
 from requests.adapters import HTTPAdapter
-import six
+
 
 logger = logging.getLogger(__name__)
 

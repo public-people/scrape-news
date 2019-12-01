@@ -4,7 +4,6 @@ Test spiders.
 Light testing to ensure that the syntax of the spiders is correct by loading
 each spider class from the spider modules. Methods are not tested.
 """
-from __future__ import absolute_import
 from unittest import TestCase
 
 

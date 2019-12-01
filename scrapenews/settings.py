@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Scrapy settings for scrapenews project
 
