@@ -22,9 +22,10 @@ unit:
 	python -m unittest discover -s scrapenews/tests/unit -t scrapenews
 
 test-iol:
-	# Test a certain crawler without using the upload pipeline.
-	# Note that is works from the project root because of how scrapy runs.
-	scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01
+	scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 iol
+
+test-help:
+	@echo 'scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 <CRAWLER>'
 
 list:
-	scrapenews/utils/list_spiders.py
+	@scrapenews/utils/list_spiders.py
