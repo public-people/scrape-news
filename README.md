@@ -50,10 +50,17 @@ Navigate to the repo.
 $ cd <PATH_TO_REPO>
 ```
 
+### Make commands
+
+This project comes with a [Makefile](/Makefile), to run with `make` command. Run the following without any arguments to get a list of available commands.
+
+```bash
+$ make
+```
+
+We'll use some of those below.
+
 ### Setup virtual environment
-
-The shortcut commands used in this doc come from the [Makefile](/Makefile) and can be run from the project root using the `make` command, as below.
-
 
 1. Create a virtual environment called `venv`.
     ```bash
