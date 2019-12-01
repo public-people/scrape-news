@@ -62,7 +62,7 @@ $ cd <PATH_TO_REPO>
     $ make dev-install
     ```
 
-#### Run
+### Run
 
 Note: Always activate the project's environment before using it.
 
@@ -70,12 +70,11 @@ Note: Always activate the project's environment before using it.
 $ source venv/bin/activate
 ```
 
-##### List available spiders in the project
-
+#### List available spiders in the project
 
 ```bash
 $ make list
-scrapenews/utils/list_spiders.py # This is script you just ran.
+scrapenews/utils/list_spiders.py  # This is the script you just ran through make.
 businesslivecrawl
 businesslivesitemap
 dailymaverick
@@ -97,7 +96,7 @@ timeslive
 
 We will use these crawler names in the next step. Note that these names are generated from _classes_ in the [spiders](/scrapenews/spiders/) directory and not the _filenames_.
 
-##### Run scraper
+#### Run scraper
 
 Run a scraper using the command below to check that your environment is working properly. This can be done from the project root because of how the `scrapy` library works.
 
@@ -109,7 +108,13 @@ $ scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
 - The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
 - The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
 
-##### Output
+For quick testing on just this one spider, a shortcut for the above command has been added to the [Makefile](/Makefile). Use it like this:
+
+```bash
+$ make test-iol
+```
+
+#### Output
 
 If it's working correctly, it will output a lot of information:
 
@@ -138,6 +143,28 @@ when it reaches articles that are after the earliest accepted date, it will actu
  'title': u'Stanlib may further reduce fund offering',
  'url': 'https://www.iol.co.za/personal-finance/stanlib-may-further-reduce-fund-offering-14717297'}
 ```
+
+
+### Code checks
+
+To maintain Python code quality, **linting** and **unit tests** should be run locally and on Github. Linting give you style warnings. The unit tests are in the [unit](/tests/unit) directory and run tests against the project code.
+
+#### Local
+
+Run the checks locally using the following commands:
+
+```bash
+$ make lint
+```
+
+```bash
+$ make unit
+```
+
+#### Github
+
+Linting and tests areas are run automatically on Github Actions when you do a push using the [Python workflow](/.github/workflows/pythonapp.yml) config. View the results on a Github repo under the _Actions_ tab.
+
 
 ### Make a spider
 
