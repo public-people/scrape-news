@@ -107,12 +107,12 @@ We will use these crawler names in the next step. Note that these names are gene
 Run a scraper using the command below to check that your environment is working properly. This can be done from the project root because of how the `scrapy` library works.
 
 ```bash
-$ scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
+$ scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30 iol
 ```
 
-- The argument following `crawl` is the name of the scraper (e.g. `iol`). See output from the previous section.
 - The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
 - The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
+- The last argument `crawl` is the name of the scraper (e.g. `iol`). See output from the previous section.
 
 For quick testing on just this one spider, a shortcut for the above command has been added to the [Makefile](/Makefile). Use it like this:
 
@@ -120,12 +120,20 @@ For quick testing on just this one spider, a shortcut for the above command has 
 $ make test-iol
 ```
 
+Also, if you need to get a template crawl command quickly and then fill in with a crawler, run the following and then copy and paste the result to a new line.
+
+```bash
+$ make test-help
+scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-01-01 <CRAWLER>
+```
+
 #### Output
 
-If it's working correctly, it will output a lot of information:
+If the crawl command is working correctly, it will output a lot of information.
 
-e.g. after starting up it will find the sitemap and some articles that it will ignore in the sitemaps:
+e.g. after starting up it will find the sitemap and some articles that it will ignore in the sitemaps.
 
+Sample output for _iol_ crawler.
 ```
 2018-05-03 18:21:17 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.iol.co.za/robots.txt> (referer: None) ['cached']
 2018-05-03 18:21:17 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.iol.co.za/sitemap.xml> (referer: https://www.iol.co.za/robots.txt) ['cached']
@@ -135,7 +143,7 @@ e.g. after starting up it will find the sitemap and some articles that it will i
 2018-05-03 18:21:18 [scrapenews.spiders.sitemap] DEBUG: Skipping too old https://www.iol.co.za/personal-finance/six-cappuccinos-or-a-year-off-your-home-loan-14626132
 ```
 
-when it reaches articles that are after the earliest accepted date, it will actually scrape content from the pages and print the resulting [ScrapenewsItem]() for the article
+when it reaches articles that are after the earliest accepted date, it will actually scrape content from the pages and print the resulting [ScrapenewsItem](/scrapenews/items.py) for the article:
 
 ```
 2018-05-03 18:21:34 [scrapy.core.scraper] DEBUG: Scraped from <200 https://www.iol.co.za/personal-finance/stanlib-may-further-reduce-fund-offering-14717297>
