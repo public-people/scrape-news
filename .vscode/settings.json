@@ -1,7 +1,4 @@
 {
-    "terminal.integrated.cwd": "scrapenews",
-    "code-runner.cwd": "scrapenews",
-
     "python.pythonPath": "venv/bin/python",
 
     "editor.rulers": [
