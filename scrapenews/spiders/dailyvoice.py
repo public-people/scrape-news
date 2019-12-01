@@ -62,8 +62,8 @@ class DailyvoiceSpider(CrawlSpider):
             byline = response.xpath('//strong[@itemprop="name"]/text()').extract_first()
             publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
 
-            # Previously:
-            #   u'18 June 2018, 09:01am' -- also tested with '8 June 2018, 09:20pm'
+            # Date format changes, previously it was:
+            #   '18 June 2018, 09:01am'
             #   '%d %B %Y, %I:%M%p'
             publication_date = lib.parse_date_hour_min_sec(publication_date_str)
             publication_date = SAST.localize(publication_date)
