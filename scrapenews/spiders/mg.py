@@ -61,7 +61,7 @@ class MGSpider(SitemapSpider):
         body_text = remove_tags(body_html, encoding='utf-8')
         for string in SKIP_STRINGS:
             suffix = body_text[-20:]
-            if string in suffix:
+            if six.text_type(string) in suffix:
                 self.logger.info(
                     "Skipping %s because suffix %r contains %r",
                     canonical_url, suffix, string
