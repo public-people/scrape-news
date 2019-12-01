@@ -23,5 +23,3 @@ jobs:
       run: make dev-install
     - name: Lint with flake8
       run: make lint
-    - name: Lint for PY3 compatibility
-      run: make lint-py3

@@ -18,10 +18,6 @@ lint:
 	# Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 	flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude setup.py,scrapenews/settings.py
 
-lint-py3:
-	# Check for PY3 compatibility.
-	pylint --py3k scrapenews
-
 unit:
 	python -m unittest discover -s scrapenews/tests/unit -t scrapenews
 
