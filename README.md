@@ -21,8 +21,8 @@ We do not make news content available for public consumption. We simply store an
 ## Requirements
 
 - Python 3.5+
-- Python virtual environment with packages installed from [requirements.txt](/requirements.txt). This main library used [Scrapy](https://pypi.org/project/Scrapy/).
-- Setup _scrapyd_ (optional).
+- Python virtual environment with packages installed from [requirements.txt](/requirements.txt). This main library used [Scrapy](https://scrapy.org/).
+- Setup [scrapyd](https://scrapyd.readthedocs.io/en/stable/) (optional).
 - Aleph account and credentials for uploading results (optional).
 
 ## Development
