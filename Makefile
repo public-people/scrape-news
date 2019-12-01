@@ -1,5 +1,5 @@
 help:
-	@egrep '^\w*:' Makefile
+	@egrep '.*:$$' Makefile
 
 new-env:
 	# Use the venv builtin module to create a virtual environment also called venv.
