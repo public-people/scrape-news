@@ -81,7 +81,6 @@ $ source venv/bin/activate
 
 ```bash
 $ make list
-scrapenews/utils/list_spiders.py  # This is the script you just ran through make.
 businesslivecrawl
 businesslivesitemap
 dailymaverick
