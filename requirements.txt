@@ -2,3 +2,4 @@ Scrapy==1.5.0
 requests==2.20.0
 pytz==2018.3
 slugify==0.0.1
+scrapyd-client==1.1.0

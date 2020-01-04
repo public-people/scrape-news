@@ -227,19 +227,19 @@ We use scrapyd to run the scrapers.
 
 We use cron to schedule the scrapers regularly.
 
-### Deploy a scraper to scrapyd
-
-`scrapyd-deploy`
-
-### Schedule a scraper
-
-SitemapSpider scrapers can run daily, fetching only the latest articles. Crawling scrapers have to visit every page on the site so we only run them weekly.
-
 Tunnel a connection to the server if you're not scheduling it from the server:
 
 ```
 ssh -L 6800:localhost:6800 username@hostname
 ```
+### Deploy a scraper to scrapyd
+
+Deploy a new spider using `scrapyd-deploy`
+
+### Schedule a scraper
+
+SitemapSpider scrapers can run daily, fetching only the latest articles. Crawling scrapers have to visit every page on the site so we only run them weekly.
+
 
 #### Schedule a SitemapSpider
 
