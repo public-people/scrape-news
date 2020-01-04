@@ -14,6 +14,8 @@ See the In Progress column at [https://trello.com/b/9TVRB4gb/public-people](http
 
 Next, go get started at [Development](#development)
 
+Finally, have look at [how we work](https://github.com/public-people/project-docs/wiki/How-we-work) to best fit into the project.
+
 ## Copyright of news content
 
 We do not make news content available for public consumption. We simply store and index the news content and the original URL and publication date to provide search functionality similar to search engines. This project intends to provide better access to news on the publisher's website. It should be used to send readers to relevant news websites rather than to replace them.
