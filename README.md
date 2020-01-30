@@ -39,7 +39,7 @@ git clone https://github.com/your-name/scrape-news.git
 or
 
 ```bash
-$ git clone git@github.com:your-name/scrape-news.git
+git clone git@github.com:your-name/scrape-news.git
 ```
 
 (Make sure to replace ```your-name```.)
