@@ -34,7 +34,7 @@ We do not make news content available for public consumption. We simply store an
 Fork this repository on GitHub and clone your fork:
 
 ```bash
-$ git clone https://github.com/your-name/scrape-news.git
+git clone https://github.com/your-name/scrape-news.git
 ```
 or
 
