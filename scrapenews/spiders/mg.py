@@ -8,13 +8,15 @@ from w3lib.html import remove_tags
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
+# Note the b prefix is now needed in PY3 so that symbols translate appropriate
+# correctly. When then convert from bytes to str to match the plain text items.
 SKIP_STRINGS = [
-    '\xc2\xa9', # copyright
-    '\xe2\x80\x91', # NON-BREAKING HYPHEN
-    '\xe2\x80\x92', # FIGURE DASH
-    '\xe2\x80\x93', #EN DASH
-    '\xe2\x80\x94', # EM DASH
-    '\xe2\x80\x95', # HORIZONTAL BAR
+    b'\xc2\xa9'.decode('utf-8'),     # copyright
+    b'\xe2\x80\x91'.decode('utf-8'), # NON-BREAKING HYPHEN
+    b'\xe2\x80\x92'.decode('utf-8'), # FIGURE DASH
+    b'\xe2\x80\x93'.decode('utf-8'), # EN DASH
+    b'\xe2\x80\x94'.decode('utf-8'), # EM DASH
+    b'\xe2\x80\x95'.decode('utf-8'), # HORIZONTAL BAR
     'Agence France-Presse',
     'AFP',
     'Sapa',
@@ -57,10 +59,11 @@ class MGSpider(SitemapSpider):
 
         ## Skip syndicated content
         body_html = "".join(response.css("#body_content p").extract())
-        body_text = remove_tags(body_html, encoding='utf-8')
+        body_text = remove_tags(body_html)
+
         for string in SKIP_STRINGS:
             suffix = body_text[-20:]
-            if unicode(string, 'utf-8') in suffix:
+            if string in suffix:
                 self.logger.info("Skipping %s because suffix %r contains %r",
                                  canonical_url,
                                  suffix,
