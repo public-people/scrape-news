@@ -133,7 +133,7 @@ The arguments for the above command are required. Here is how to use them:
 
 - The setting `ITEM_PIPELINES="{}"` disables the default pipeline we which you don't need for just developing a spider.
 - The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
-- The last argument `crawl` is the name of the scraper (e.g. `iol`). See output from the previous section.
+- The last argument to the `crawl` command is the name of the scraper (e.g. `iol`). See output from the previous section.
 
 For quick testing on the _iol_ spider, a shortcut for the above command has been added to the [Makefile](/Makefile).
 
