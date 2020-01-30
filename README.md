@@ -175,7 +175,7 @@ when it reaches articles that are after the earliest accepted date, it will actu
 
 ### Code checks
 
-To maintain Python code quality, **linting** and **unit tests** should be run locally and on Github. Linting give you style warnings. The unit tests are in the [unit](/tests/unit) directory and run tests against the project code.
+To maintain Python code quality, **linting** and **unit tests** should be run locally and in Continuous Integration. Linting give you style warnings. The unit tests are in the [unit](/tests/unit) directory and run tests against the project code.
 
 #### Local
 
