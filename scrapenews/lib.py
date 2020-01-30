@@ -10,7 +10,7 @@ def parse_date_hour_min(value):
     return datetime.datetime.strptime(value.strip()[:16], '%Y-%m-%d %H:%M')
 
 
-def parse_date_hour_min_sec(value):
+def parse_ISO8601_datetime(value):
     """
     Ignore parse datetime string down to seconds, ignoring microseconds.
     """

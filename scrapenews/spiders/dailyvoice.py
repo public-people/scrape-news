@@ -65,7 +65,7 @@ class DailyvoiceSpider(CrawlSpider):
             # Date format changes, previously it was:
             #   '18 June 2018, 09:01am'
             #   '%d %B %Y, %I:%M%p'
-            publication_date = lib.parse_date_hour_min_sec(publication_date_str)
+            publication_date = lib.parse_ISO8601_datetime(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             if body_html:

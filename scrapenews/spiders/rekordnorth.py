@@ -49,7 +49,7 @@ class dfaSpider(CrawlSpider):
 
             publication_date_str = response.xpath('//time/@datetime').extract_first()
             # u'2018-06-14T11:00:00+00:00'
-            publication_date = lib.parse_date_hour_min_sec(publication_date_str)
+            publication_date = lib.parse_ISO8601_datetime(publication_date_str)
             # datetime.datetime(2018, 6, 14, 11, 0)
             publication_date = SAST.localize(publication_date)
             # datetime.datetime(2018, 6, 14, 11, 0, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
