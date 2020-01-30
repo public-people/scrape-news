@@ -240,7 +240,7 @@ To test individual xpath or css responses you can use the scrapy shell:
 scrapy shell "https://www.newssite.co.za/article-url"
 ```
 
-If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like this highlighted.
+If you go to the same url in your browser and right-click on, say, the title of the article, and select 'Inspect Element (Q)', you'll see something like this highlighted:
 
 ```html
 <h1 class="article-title">Title of article</h1>
