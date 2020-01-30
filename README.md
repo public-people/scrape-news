@@ -52,7 +52,7 @@ $ cd <PATH_TO_REPO>
 
 ### Make commands
 
-This project comes with a [Makefile](/Makefile), to run with `make` command. Run the following without any arguments to get a list of available commands.
+This project comes with a [Makefile](/Makefile), to run with `make` command.
 
 ```bash
 $ make
