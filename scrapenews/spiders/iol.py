@@ -32,7 +32,7 @@ class IOLSpider(SitemapSpider):
             byline = response.xpath('//span[@itemprop="author"]/strong/text()').extract_first()
             publication_date_str = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
 
-            publication_date = lib.parse_date_hour_min(publication_date_str)
+            publication_date = lib.parse_ISO8601_date_hour_min(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()

@@ -40,7 +40,7 @@ class News24Spider(SitemapSpider):
                 '//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href'
             ).extract_first()
 
-            publication_date = lib.parse_date(publication_date_str)
+            publication_date = lib.parse_ISO8601_date(publication_date_str)
             publication_date = SAST.localize(publication_date)
 
             item = ScrapenewsItem()

@@ -41,7 +41,7 @@ class ewnSpider(CrawlSpider):
 
             publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
             # alas no time portion: possibly use timelib to
-            publication_date = lib.parse_date(publication_date_str)
+            publication_date = lib.parse_ISO8601_date(publication_date_str)
             # datetime.datetime(2018, 6, 14, 11, 0)
             publication_date = SAST.localize(publication_date)
             # datetime.datetime(2018, 6, 14, 11, 0, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)

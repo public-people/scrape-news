@@ -1,11 +1,11 @@
 import datetime
 
 
-def parse_date(value):
+def parse_ISO8601_date(value):
     return datetime.datetime.strptime(value.strip()[:10], '%Y-%m-%d')
 
 
-def parse_date_hour_min(value):
+def parse_ISO8601_date_hour_min(value):
     value = value.replace("T", " ")
     return datetime.datetime.strptime(value.strip()[:16], '%Y-%m-%d %H:%M')
 
