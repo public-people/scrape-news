@@ -143,7 +143,7 @@ $ make test-iol
 
 #### Output
 
-If the crawl command is working correctly, it will output a lot of information.
+If the crawl command above is working correctly, it will output a lot of information:
 
 e.g. after starting up it will find the sitemap and some articles that it will ignore in the sitemaps.
 
