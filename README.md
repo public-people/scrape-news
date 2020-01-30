@@ -131,7 +131,7 @@ $ scrapy crawl -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30 iol
 
 The arguments for the above command are required. Here is how to use them:
 
-- The setting `ITEM_PIPELINES` disables the pipeline we have configured which you don't need for just developing a spider.
+- The setting `ITEM_PIPELINES="{}"` disables the default pipeline we which you don't need for just developing a spider.
 - The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
 - The last argument `crawl` is the name of the scraper (e.g. `iol`). See output from the previous section.
 
