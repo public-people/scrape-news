@@ -34,11 +34,7 @@ class MGSpider(SitemapSpider):
     name = 'mg'
     allowed_domains = ['mg.co.za']
 
-    sitemap_urls = ['https://mg.co.za/robots.txt']
-
-    sitemap_follow = [
-        '/sitemaps/',
-    ]
+    sitemap_urls = ['https://mg.co.za/sitemap_index.xml']
 
     sitemap_rules = [
         ('mg.co.za/article', 'parse'),
