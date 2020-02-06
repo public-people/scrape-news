@@ -12,10 +12,10 @@ class ewnSpider(CrawlSpider):
     name = 'ewn'
     allowed_domains = ['ewn.co.za']
 
-    start_urls = ['http://ewn.co.za']
+    start_urls = ['https://ewn.co.za']
 
     link_extractor = LinkExtractor(
-        allow=(r'http://ewn.co.za/[0-9]{4}/[0-9]{2}/[0-9]{2}/',),
+        allow=(r'https://ewn.co.za/[0-9]{4}/[0-9]{2}/[0-9]{2}/',),
         deny=()
     )
 
