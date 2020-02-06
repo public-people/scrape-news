@@ -9,8 +9,8 @@ import re
 
 class ThenewageSpider(CrawlSpider):
     name = 'thenewage'
-    allowed_domains = ['www.thenewage.co.za']
-    start_urls = ['http://www.thenewage.co.za/']
+    allowed_domains = ['thenewage.co.za']
+    start_urls = ['https://thenewage.co.za/']
 
     link_extractor = LinkExtractor(allow=())
     rules = (
