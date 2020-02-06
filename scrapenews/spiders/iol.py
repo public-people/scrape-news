@@ -32,6 +32,7 @@ class IOLSpider(SitemapSpider):
             byline = response.xpath('//span[@itemprop="author"]/strong/text()').extract_first()
             publication_date_str = response.xpath('//span[@itemprop="datePublished"]/@content').extract_first()
 
+            publication_date_str = publication_date_str.strip()[:16]
             publication_date = datetime.strptime(publication_date_str, '%Y-%m-%dT%H:%M')
             publication_date = SAST.localize(publication_date)
 
