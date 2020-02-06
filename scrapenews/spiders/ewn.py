@@ -36,8 +36,9 @@ class ewnSpider(CrawlSpider):
             body_html = " ".join(response.css('article.article-full p').extract())
             byline = response.css('.byline span[itemprop="author"] a ::text').extract_first()
 
-            publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
-            # alas no time portion: possibly use timelib to 
+            publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content')\
+                .extract_first().strip()
+            # alas no time portion: possibly use timelib to
             publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
             # datetime.datetime(2018, 6, 14, 11, 0)
             publication_date = SAST.localize(publication_date)
