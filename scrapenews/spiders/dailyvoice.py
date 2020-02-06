@@ -50,9 +50,10 @@ class DailyvoiceSpider(CrawlSpider):
             article_body = response.css('div.article-body')
             body_html = " ".join(article_body.xpath('//p').css('::text').extract())
             byline = response.xpath('//strong[@itemprop="name"]/text()').extract_first()
-            publication_date_str = response.xpath('//span[@itemprop="datePublished"]/text()').extract_first()
-            # u'18 June 2018, 09:01am' -- also tested with '8 June 2018, 09:20pm'
-            publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M%p')
+            publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content').extract_first()
+
+            # '2020-01-30T08:22:00.000Z'
+            publication_date = datetime.strptime(publication_date_str[:19], '%Y-%m-%dT%H:%M:%S')
             # datetime.datetime(2018, 6, 18, 9, 1); datetime.datetime(2018, 6, 8, 21, 20)
             publication_date = SAST.localize(publication_date)
             # datetime.datetime(2018, 6, 8, 21, 20, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
