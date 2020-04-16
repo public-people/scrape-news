@@ -44,7 +44,7 @@ class AlephPipeline(object):
         }
 
         collection_id = self.get_collection_id(
-            slugify(unicode(item['publication_name'])),
+            slugify(item['publication_name')),
             item['publication_name']
         )
         url = self.make_url('collections/%s/ingest' % collection_id)
