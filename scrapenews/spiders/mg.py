@@ -36,11 +36,7 @@ class MGSpider(SitemapSpider):
     name = 'mg'
     allowed_domains = ['mg.co.za']
 
-    sitemap_urls = ['https://mg.co.za/robots.txt']
-
-    sitemap_follow = [
-        '/sitemaps/',
-    ]
+    sitemap_urls = ['https://mg.co.za/sitemap_index.xml']
 
     sitemap_rules = [
         ('mg.co.za/article', 'parse'),
@@ -53,7 +49,7 @@ class MGSpider(SitemapSpider):
 
         ## Skip excluded sections
         section = response.css('a.section').xpath('text()').extract_first()
-        if section.lower() in IGNORE_SECTIONS:
+        if section and section.lower() in IGNORE_SECTIONS:
             self.logger.info("Skipping %s because section is %s", canonical_url, section)
             return
 
