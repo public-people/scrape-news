@@ -8,6 +8,7 @@ import pytz
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
+
 class ewnSpider(CrawlSpider):
     name = 'ewn'
     allowed_domains = ['ewn.co.za']
@@ -28,7 +29,7 @@ class ewnSpider(CrawlSpider):
     def parse_item(self, response):
 
         canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
-        title = response.css('h2 > span').xpath('text()').extract_first()
+        title = response.css('h2 > span').xpath('text()').extract_first().strip()
         self.logger.info('%s %s', response.url, title)
         # should we be using canonical_url instead of response.url for the above?
         og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()

@@ -2,99 +2,109 @@
 import logging
 import requests
 import json
-from urlparse import urljoin
+from urllib.parse import urljoin
 from slugify import slugify
 from requests.adapters import HTTPAdapter
 
 logger = logging.getLogger(__name__)
 
 
-class AlephPipeline(object):
+TIMEOUT_SECONDS = 10
 
-    def __init__(self, api_key, aleph_host):
+
+class ZANewsPipeline(object):
+
+    def __init__(self, zanews_token, zanews_host):
         self.session = requests.Session()
-        self.session.headers['Authorization'] = 'apikey %s' % api_key
-        self.aleph_host = aleph_host
-        self.session.mount(self.aleph_host, HTTPAdapter(max_retries=5))
+        self.session.headers['Authorization'] = 'Token %s' % zanews_token
+        self.host = zanews_host
+        self.session.mount(self.host, HTTPAdapter(max_retries=5))
+        self._publications = None
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            api_key=crawler.settings.get('ALEPH_API_KEY'),
-            aleph_host=crawler.settings.get('ALEPH_HOST'),
+            zanews_token=crawler.settings.get('ZANEWS_TOKEN'),
+            zanews_host=crawler.settings.get('ZANEWS_HOST'),
         )
 
     def process_item(self, item, spider):
-        if self.url_is_already_indexed(item['url']):
-            logger.info("Not ingesting already indexed %s", item['url'])
-            return item
+        publication_url = self.get_publication_url(item['publication_name'])
 
-        meta = {
-            'crawler': item['spider_name'],
-            'source_url': item['url'],
+        article = {
+            'spider_name': item['spider_name'],
+            'published_url': item['url'],
             'title': item['title'],
-            'file_name': item['file_name'],
-            'extension': 'html',
-            'encoding': 'utf-8',
-            'foreign_id': item['url'],
-            'mime_type':  'text/html',
-            'countries': ['za'],
             'retrieved_at': item['retrieved_at'],
             'published_at': item['published_at'],
+            'body_html': item['body_html'],
+            'byline': item['byline'],
+            'publication': publication_url,
         }
 
-        collection_id = self.get_collection_id(
-            slugify(item['publication_name')),
-            item['publication_name']
-        )
-        url = self.make_url('collections/%s/ingest' % collection_id)
+        url = self.make_url('articles/')
 
         logger.info("Sending '%s' to %s", item['title'], url)
-        logger.debug("meta = %r", meta)
 
-        r = self.session.post(url,
-                              data={'meta': json.dumps(meta)},
-                              files={'file': item['body_html']},
-                              timeout=10,
+        r = self.session.post(
+            url,
+            json=article,
+            timeout=TIMEOUT_SECONDS,
         )
-        if not r.status_code == requests.codes.ok:
-            logger.error("%s\n%s", r.status_code, r.text)
-        r.raise_for_status()
 
-        return item
+        if r.status_code == 201:
+            return item
 
-    def get_collection_id(self, foreign_id, name):
-        url = self.make_url('collections')
-        r = self.session.get(url, timeout=10, params={
-            'filter:foreign_id': foreign_id
-        })
-        r.raise_for_status()
-        data = r.json()
-        for coll in data.get('results'):
-            if coll.get('foreign_id') == foreign_id:
-                return coll.get('id')
+        if (r.status_code == 400 and "already exists" in r.json().get('published_url', [''])[0]):
+            logger.info("Already archived %s", item["url"])
+            return item
 
-        r = self.session.post(url, json={
-            'label': name,
-            'category': 'news',
-            'managed': True,
-            'foreign_id': foreign_id
-        })
+        logger.error("%s\n%s", r.status_code, r.text)
         r.raise_for_status()
-        return r.json().get('id')
 
     def make_url(self, path):
-        prefix = urljoin(self.aleph_host, '/api/2/')
+        prefix = urljoin(self.host, '/api/')
         return urljoin(prefix, path)
 
-    def url_is_already_indexed(self, source_url):
-        logger.info("Checking if already indexed: %s", source_url)
-        url = self.make_url('documents')
-        r = self.session.get(url, params={'filter:source_url': source_url}, timeout=10)
+    def get_publication_url(self, name):
+        slug = slugify(name)
+        publication = self.get_publications().get(slug, None)
+        if not publication:
+            self.create_publication(name, slug)
+            publication = self.get_publications(refresh=True)
+        if publication:
+            return publication['url']
+        else:
+            raise Exception("Can't find publication %s" % slug)
+
+    def get_publications(self, refresh=False):
+        if self._publications and not refresh:
+            return self._publications
+        url = self.make_url('publications/')
+        self._publications = load_publications(self.session, {}, url)
+        return self._publications
+
+    def create_publication(self, name, slug):
+        publication = {
+            "name": name,
+            "slug": slug,
+        }
+        url = self.make_url('publications/')
+        r = self.session.post(url, json=publication)
         r.raise_for_status()
-        data = r.json()
-        if data['total'] not in (0, 1):
-            raise Exception(("Unexpected number of existing documents (%r) for %s"
-                             "\nrequested %r")
-                            % (data['total'], source_url, r.url))
-        return data['total'] == 1
+
+
+def load_publications(session, publications, url):
+    """
+    resursively load publications until all pages have been added to the
+    provided dictionary
+    """
+    result = session.get(url, timeout=TIMEOUT_SECONDS)
+    result.raise_for_status()
+    for pub in result.json()['results']:
+        publications[pub['slug']] = pub
+    next_url = result.json()['next']
+    if next_url:
+        return load_publications(session, publications, next_url)
+    else:
+        return publications
