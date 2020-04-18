@@ -10,7 +10,7 @@ import re
 class encaSpider(CrawlSpider):
     name = 'enca'
     allowed_domains = ['www.enca.com']
-    start_urls = ['http://www.enca.com/news-stream/south-africa']
+    start_urls = ['https://www.enca.com/news-stream/south-africa']
 
     link_extractor = LinkExtractor(allow=('/south-africa'))
     rules = (
