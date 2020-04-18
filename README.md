@@ -246,11 +246,11 @@ SitemapSpider scrapers can run daily, fetching only the latest articles. Crawlin
 SitemapSpiders take an argument `since_lastmod` which is an ISO format date filtering sitemaps and links in sitemaps. To do a complete scrape, just set it to a date very long ago, like `1900-01-01`.
 
 ```
-curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=iol -d setting=ALEPH_API_KEY=... -d since_lastmod=$(date +%Y-%m-%d -d "5 day ago")
+curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=iol -d setting=ZANEWS_TOKEN=... -d since_lastmod=$(date +%Y-%m-%d -d "5 day ago")
 ```
 
 #### Schedule a crawling spider
 
 ```
-curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=thenewage -d setting=ALEPH_API_KEY=...
+curl -v http://localhost:6800/schedule.json -d project=scrapenews -d spider=thenewage -d setting=ZANEWS_TOKEN=...
 ```
