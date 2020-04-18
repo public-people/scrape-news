@@ -20,6 +20,13 @@ Finally, have look at [how we work](https://github.com/public-people/project-doc
 
 We do not make news content available for public consumption. We simply store and index the news content and the original URL and publication date to provide search functionality similar to search engines. This project intends to provide better access to news on the publisher's website. It should be used to send readers to relevant news websites rather than to replace them.
 
+## Requirements
+
+- Python 3.5+
+- Python virtual environment with packages installed from [requirements.txt](/requirements.txt). This main library used [Scrapy](https://scrapy.org/).
+- Setup [scrapyd](https://scrapyd.readthedocs.io/en/stable/) (optional).
+- Aleph account and credentials for uploading results (optional).
+
 ## Development
 
 ### Set up your development environment
@@ -34,17 +41,23 @@ git clone git@github.com:your-name/scrape-news.git
 ```
 (Make sure to replace ```your-name```.)
 
-Create a Python 2 virtual environment for this project inside the cloned project directory (Note: your virtual environment program might not be called `pyvenv` -
+
 ```bash
 cd scrape-news
-pyvenv env
 ```
 
-If your default Python is Python3, try `virtualenv` instead; it creates a Python2 environment by default:
+Create a Python 3 virtual environment for this project inside the cloned project directory. Use one of the following:
+
 ```bash
-cd scrape-news
-virtualenv .env2
-source .env2/bin/activate
+pyvenv env
+# OR
+virtualenv -p python3 env
+# OR
+python3 -m venv env
+```
+
+```bash
+source env/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -53,6 +66,12 @@ Run a scraper to check that your environment is working properly. The argument `
 ```bash
 scrapy crawl iol -s ITEM_PIPELINES="{}" -a since_lastmod=2018-04-30
 ```
+
+The arguments for the above command are required. Here is how they work:
+
+- The setting `ITEM_PIPELINES="{}"` disables the default pipeline we which you don't need for just developing a spider.
+- The argument `since_lastmod` is the earliest sitemap file and page the scraper will include.
+- The last argument to the `crawl` command is the name of the scraper (e.g. `iol`). See output from the previous section.
 
 If it's working correctly, it will output a lot of information:
 
@@ -67,7 +86,7 @@ e.g. after starting up it will find the sitemap and some articles that it will i
 2018-05-03 18:21:18 [scrapenews.spiders.sitemap] DEBUG: Skipping too old https://www.iol.co.za/personal-finance/six-cappuccinos-or-a-year-off-your-home-loan-14626132
 ```
 
-when it reaches articles that are after the earliest accepted date, it will actually scrape content from the pages and print the resulting [ScrapenewsItem]() for the article
+when it reaches articles that are after the earliest accepted date, it will actually scrape content from the pages and print the resulting [ScrapenewsItem](/scrapenews/items.py) for the article
 
 ```
 2018-05-03 18:21:34 [scrapy.core.scraper] DEBUG: Scraped from <200 https://www.iol.co.za/personal-finance/stanlib-may-further-reduce-fund-offering-14717297>
@@ -86,17 +105,17 @@ when it reaches articles that are after the earliest accepted date, it will actu
 
 Public People needs the following fields:
 
-| field | description |
-|-------|-------------|
-| body_html | An HTML string that contains all the text of the article and any other content the publication had in the article body. Don't bother filtering ads or anything - just try and exclude headers and footers and make sure you have the entire article, even if it's broken into multiple sections on the page. |
-| byline | String of all the authors' names and surnames as presented on the article page. |
-| file_name | Usually the "slug" of the article in the URL. Some simple clear name for the article if it was a file. |
-| publication_name | e.g. News24 - this can usually be hardcoded in the scraper and doesn't need to be scraped from the page. |
-| published_at | ISO 8601 date - could even be partial, like just the year-month-date part excluding time. There's often a meta tag or an attribute on the element in the content where the date is for search engines - that value is often already in ISO 8601 format. |
-| retrieved_at | ISO 8601 date of current date/time to know when we scraped it. |
-| spider_name | Generally the module name. |
-| title | Article title. |
-| url | This is used as the unique identifier for this article for deduplication, so use the [canonical url meta tag value](https://yoast.com/rel-canonical/) if available, otherwise just try to parse out the unique part of the URL from `resposne.url` and exclude things like query string paramaters and URL fragment  identifier. |
+| field            | description                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| body_html        | An HTML string that contains all the text of the article and any other content the publication had in the article body. Don't bother filtering ads or anything - just try and exclude headers and footers and make sure you have the entire article, even if it's broken into multiple sections on the page.                     |
+| byline           | String of all the authors' names and surnames as presented on the article page.                                                                                                                                                                                                                                                  |
+| file_name        | Usually the "slug" of the article in the URL. Some simple clear name for the article if it was a file.                                                                                                                                                                                                                           |
+| publication_name | e.g. News24 - this can usually be hardcoded in the scraper and doesn't need to be scraped from the page.                                                                                                                                                                                                                         |
+| published_at     | ISO 8601 date - could even be partial, like just the year-month-date part excluding time. There's often a meta tag or an attribute on the element in the content where the date is for search engines - that value is often already in ISO 8601 format.                                                                          |
+| retrieved_at     | ISO 8601 date of current date/time to know when we scraped it.                                                                                                                                                                                                                                                                   |
+| spider_name      | Generally the module name.                                                                                                                                                                                                                                                                                                       |
+| title            | Article title.                                                                                                                                                                                                                                                                                                                   |
+| url              | This is used as the unique identifier for this article for deduplication, so use the [canonical url meta tag value](https://yoast.com/rel-canonical/) if available, otherwise just try to parse out the unique part of the URL from `response.url` and exclude things like query string parameters and URL fragment  identifier. |
 
 First, add this repository as a remote and make sure your local master is up to date:
 ```bash
@@ -114,7 +133,7 @@ git checkout -b newssite
 
 Ideally spiders should be driven from the outlet's sitemap. Ideally you'll find the sitemap from /robots.txt. If you don't find it there, try /sitemap.xml or /sitemap.txt.
 
-If the newssite uses a _useful_ sitemap index (see for example [https://www.timeslive.co.za/sitemap/](https://www.timeslive.co.za/sitemap/)), use a sitemap spider.
+If the news site uses a _useful_ sitemap index (see for example [https://www.timeslive.co.za/sitemap/](https://www.timeslive.co.za/sitemap/)), use a sitemap spider.
 
 If the sitemap index is less useful (see for example [https://www.dailyvoice.co.za/sitemap.xml](https://www.dailyvoice.co.za/sitemap.xml)), or if there isn't a sitemap index (or no sitemap at all), use a crawling spider.
 

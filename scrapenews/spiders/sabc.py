@@ -46,7 +46,8 @@ class sabcSpider(CrawlSpider):
             article_body = response.css('div.post-content')
             body_html = " ".join(article_body.css('::text').extract())
             byline = response.css('span.author::text').extract_first().strip()
-            publication_date_str = response.css('span.create::text').extract_first().strip()
+            # When extracting, ignore the first line as it is a comment.
+            publication_date_str = response.css('span.create::text').extract()[1].strip()
             publication_date = datetime.strptime(publication_date_str, '%d %B %Y, %I:%M %p')
             publication_date = SAST.localize(publication_date)
 

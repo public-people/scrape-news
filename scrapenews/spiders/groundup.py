@@ -52,8 +52,8 @@ class groundupSpider(CrawlSpider):
             else:
                 body_html = article_body
             byline = response.xpath('//a[@rel="author"]/text()').extract_first()
-            publication_date_str = response.xpath('//time/@datetime').extract_first()
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
+            publication_date_str = response.xpath('//time/@datetime').extract_first().strip()
+            publication_date = datetime.strptime(publication_date_str[:10], '%Y-%m-%d')
             publication_date = SAST.localize(publication_date)
 
             if body_html:
