@@ -31,33 +31,32 @@ class ZANewsPipeline(object):
     def process_item(self, item, spider):
         publication_url = self.get_publication_url(item['publication_name'])
 
-        meta = {
-            'spider_name': item['spideor_name'],
+        article = {
+            'spider_name': item['spider_name'],
             'published_url': item['url'],
             'title': item['title'],
             'retrieved_at': item['retrieved_at'],
             'published_at': item['published_at'],
             'body_html': item['body_html'],
-            'byline': item[:'byline'],
+            'byline': item['byline'],
             'publication': publication_url,
         }
 
-        url = self.make_url('articles')
+        url = self.make_url('articles/')
 
         logger.info("Sending '%s' to %s", item['title'], url)
-        logger.debug("meta = %r", meta)
 
         r = self.session.post(
             url,
-            data={'meta': json.dumps(meta)},
+            json=article,
             timeout=TIMEOUT_SECONDS,
         )
 
-        if r.status_code == 200:
+        if r.status_code == 201:
             return item
 
         if (r.status_code == 400 and "already exists" in r.json().get('published_url', [''])[0]):
-            logger.info("Already archived %s", item["published_url"])
+            logger.info("Already archived %s", item["url"])
             return item
 
         logger.error("%s\n%s", r.status_code, r.text)
@@ -81,7 +80,7 @@ class ZANewsPipeline(object):
     def get_publications(self, refresh=False):
         if self._publications and not refresh:
             return self._publications
-        url = self.make_url('publications')
+        url = self.make_url('publications/')
         self._publications = load_publications(self.session, {}, url)
         return self._publications
 
@@ -90,8 +89,8 @@ class ZANewsPipeline(object):
             "name": name,
             "slug": slug,
         }
-        url = self.make_url('publications')
-        r = self.session.post(url, publication)
+        url = self.make_url('publications/')
+        r = self.session.post(url, json=publication)
         r.raise_for_status()
 
 
@@ -106,6 +105,6 @@ def load_publications(session, publications, url):
         publications[pub['slug']] = pub
     next_url = result.json()['next']
     if next_url:
-        return load_publications(publications, next_url)
+        return load_publications(session, publications, next_url)
     else:
         return publications
