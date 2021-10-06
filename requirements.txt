@@ -1,4 +1,4 @@
-Scrapy==1.8.0
+Scrapy==1.8.1
 requests==2.22.0
 pytz==2019.3
 python-slugify==4.0.0
