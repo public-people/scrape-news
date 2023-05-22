@@ -1,5 +1,5 @@
 Scrapy==1.8.0
-requests==2.22.0
+requests==2.31.0
 pytz==2019.3
 python-slugify==4.0.0
 scrapyd-client==1.1.0
