@@ -12,48 +12,49 @@ class TimesliveSpider(SitemapSpider):
     name = 'timeslive'
     allowed_domains = ['www.timeslive.co.za']
 
-    sitemap_urls = ['https://www.timeslive.co.za/robots.txt']
-    sitemap_follow = [
-        'www.timeslive.co.za/sitemap/anc-conference-2017/',
-        'www.timeslive.co.za/sitemap/news/',
-        'www.timeslive.co.za/sitemap/politics/',
-        'www.timeslive.co.za/sitemap/investigations/',
-        'www.timeslive.co.za/sitemap/opinion-and-analysis/',
-        'www.timeslive.co.za/sitemap/business/',
+    sitemap_urls = ['https://www.timeslive.co.za/arc/outboundfeeds/sitemap-news-index/']
+    sitemap_rules = [
+        (r'/news/', 'parse'),
+        (r'/politics/', 'parse'),
+        (r'/investigations/', 'parse'),
+        (r'/opinion/', 'parse'),
     ]
 
     publication_name = 'Times Live'
 
     def parse(self, response):
-        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
+        canonical_url = response.css('link[rel=canonical]::attr(href)').get() or response.url
 
-        title = response.xpath('//h1/span/text()').extract_first()
+        title = response.css('h1::text').get()
         self.logger.info('%s %s', response.url, title)
-        article_body = response.css('div.article-widget-text')
-        if article_body:
-            # join multiple text sections
-            body_html = " ".join(article_body.extract())
-            byline_includes_by = response.xpath('//span[@class="heading-author"]/text()').extract()
-            byline_str = " ".join(byline_includes_by)
-            byline_no_by = (byline_str).split(" ")[1:]
-            byline = " ".join(byline_no_by)
 
-            publication_date_str = response.css('div.article-pub-date').xpath('text()').extract()[0].strip()
-            # '03 May 2018 - 19:17'
-            publication_date = datetime.strptime(publication_date_str, '%d %B %Y - %H:%M')
-            # datetime.datetime(2018, 5, 3, 19, 17)
+        article_body = response.css('.b-article-body')
+        if not article_body:
+            self.logger.info("No body found for %s", response.url)
+            return
 
-            publication_date = SAST.localize(publication_date)
+        body_html = article_body.get()
 
-            item = ScrapenewsItem()
-            item['body_html'] = body_html
-            item['title'] = title
-            item['byline'] = byline
-            item['published_at'] = publication_date.isoformat()
-            item['retrieved_at'] = datetime.utcnow().isoformat()
-            item['url'] = canonical_url
-            item['file_name'] = response.url.split('/')[-2]
-            item['spider_name'] = self.name
-            item['publication_name'] = self.publication_name
+        byline = response.css('.b-author-bio__author-name::text').get()
+        if not byline:
+            byline = response.css('meta[name=author]::attr(content)').get()
 
-            yield item
+        publication_date_str = response.css('time[datetime]::attr(datetime)').get()
+        if publication_date_str:
+            publication_date = datetime.fromisoformat(publication_date_str)
+            publication_date = publication_date.astimezone(SAST)
+        else:
+            publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
+
+        item = ScrapenewsItem()
+        item['body_html'] = body_html
+        item['title'] = title.strip() if title else ''
+        item['byline'] = byline.strip() if byline else ''
+        item['published_at'] = publication_date.isoformat()
+        item['retrieved_at'] = datetime.utcnow().isoformat()
+        item['url'] = canonical_url
+        item['file_name'] = response.url.split('/')[-2]
+        item['spider_name'] = self.name
+        item['publication_name'] = self.publication_name
+
+        yield item

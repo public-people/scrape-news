@@ -5,13 +5,19 @@ from scrapenews.spiders.timeslive import TimesliveSpider
 
 class SundayTimesSpider(TimesliveSpider):
     """
-    Class implementing a sitemap spider for the Sunday Times (https://www.timeslive.co.za/sunday-times/).
-    The Sunday Times is hosted on the TimesLIVE website (https://www.timeslive.co.za).
-    This spider is therefore implemented as a subclass of the TimesLIVE spider but only parsing paths that contain `/sunday-times/`.
+    Sunday Times is now hosted on its own domain (sundaytimes.timeslive.co.za)
+    but uses the same Arc publishing platform as TimesLIVE.
     """
 
     name = 'sundaytimes'
+    allowed_domains = ['www.sundaytimes.timeslive.co.za']
+    sitemap_urls = ['https://www.sundaytimes.timeslive.co.za/arc/outboundfeeds/sitemap-news-index/']
 
-    sitemap_rules = [('/sunday-times/', 'parse')]
+    sitemap_rules = [
+        (r'/news/', 'parse'),
+        (r'/business/', 'parse'),
+        (r'/investigations/', 'parse'),
+        (r'/opinion/', 'parse'),
+    ]
 
     publication_name = 'Sunday Times'
