@@ -28,7 +28,7 @@ class ZANewsPipeline(object):
             zanews_host=crawler.settings.get('ZANEWS_HOST'),
         )
 
-    def process_item(self, item, spider):
+    def process_item(self, item):
         publication_url = self.get_publication_url(item['publication_name'])
 
         article = {

@@ -45,7 +45,7 @@ class ThenewageSpider(CrawlSpider):
 
     def filter_links(self, links):
         for link in links:
-            match = re.search('/page/(\d+)/', link.url)
+            match = re.search(r'/page/(\d+)/', link.url)
             if '?' in link.url:
                 self.logger.info("Ignoring %s", link.url)
                 continue

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scrapenews"
+version = "1.0.0"
+dependencies = [
+    "scrapy",
+    "requests",
+    "pytz",
+    "python-slugify",
+]
+
+[project.entry-points."scrapy"]
+settings = "scrapenews.settings"
