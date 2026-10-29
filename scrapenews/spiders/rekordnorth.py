@@ -8,19 +8,21 @@ import pytz
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
-class dfaSpider(CrawlSpider):
+
+class RekordNorthSpider(CrawlSpider):
     name = 'rekordnorth'
-    allowed_domains = ['rekordnorth.co.za']
-    start_urls = ['https://rekordnorth.co.za/category/news-headlines/local-news/']
+    allowed_domains = ['citizen.co.za']
+    start_urls = ['https://www.citizen.co.za/rekord/']
 
     article_link_extractor = LinkExtractor(
-        allow=(r'https://rekordnorth.co.za/\d+/', ),
-        allow_domains=allowed_domains
+        allow=(r'/rekord/.*\d{4}/\d{2}/\d{2}/', ),
+        deny=(r'/attachment/',),
+        allow_domains=['citizen.co.za']
     )
     category_link_extractor = LinkExtractor(
-        allow=('https://rekordnorth.co.za/category/', ),
-        allow_domains=allowed_domains,
-        deny='opinion-edition|lifestyle-news'
+        allow=(r'/rekord/category/', ),
+        allow_domains=['citizen.co.za'],
+        deny=r'opinion-edition|lifestyle-news'
     )
 
     rules = (
@@ -31,31 +33,26 @@ class dfaSpider(CrawlSpider):
     publication_name = 'Rekord Pretoria-North'
 
     def parse_item(self, response):
-        # Whitelist categories that are actually news
-        if not response.css('.post-categories').xpath('li/a[contains(@href, "news-headlines")]'):
-            self.logger.info("Skipping non-news article %s", response.url)
-            return
-
-        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
-        title = response.xpath('//h1[@class="entry-title"]/text()').extract_first()
-        og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
+        canonical_url = response.css('link[rel=canonical]::attr(href)').get() or response.url
+        title = response.css('h1::text').get()
+        og_type = response.css('meta[property="og:type"]::attr(content)').get()
         if og_type == 'article':
-            article_body = response.css('div.entry-content')
-            body_html = article_body.extract_first()
-            byline = response.css('div.author-name').css('::text').extract_first()
+            article_body = response.css('.post-content')
+            body_html = article_body.get()
+            byline = response.css('div.author-name').css('::text').get()
 
-            publication_date_str = response.xpath('//time/@datetime').extract_first()
-            # u'2018-06-14T11:00:00+00:00'
-            publication_date = datetime.strptime(publication_date_str[0:19], '%Y-%m-%dT%H:%M:%S')
-            # datetime.datetime(2018, 6, 14, 11, 0)
-            publication_date = SAST.localize(publication_date)
-            # datetime.datetime(2018, 6, 14, 11, 0, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
+            publication_date_str = response.css('time::attr(datetime)').get()
+            if publication_date_str:
+                publication_date = datetime.fromisoformat(publication_date_str[:19])
+                publication_date = SAST.localize(publication_date)
+            else:
+                publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
             if body_html:
                 item = ScrapenewsItem()
                 item['body_html'] = body_html
-                item['title'] = title
-                item['byline'] = byline
+                item['title'] = title.strip() if title else ''
+                item['byline'] = byline.strip() if byline else ''
                 item['published_at'] = publication_date.isoformat()
                 item['retrieved_at'] = datetime.utcnow().isoformat()
                 item['url'] = canonical_url

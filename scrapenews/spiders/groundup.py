@@ -16,10 +16,10 @@ class groundupSpider(CrawlSpider):
     start_urls = ['https://www.groundup.org.za/']
 
     link_extractor = LinkExtractor(
-        allow=('https://www.groundup.org.za/article/', ),
+        allow=(r'/article/', ),
         deny=(
-            'https://www.facebook.com/',
-            'https://twitter.com/',
+            r'https://www\.facebook\.com/',
+            r'https://twitter\.com/',
         )
     )
 
@@ -29,19 +29,16 @@ class groundupSpider(CrawlSpider):
 
     publication_name = 'GroundUp'
 
-
     def parse_item(self, response):
-
-        og_url = response.xpath('//meta[@property="og:url"]/@content').extract_first()
-        # no 'canonical' that I could find
-        title = response.xpath('//h1/text()').extract_first()
+        og_url = response.css('meta[property="og:url"]::attr(content)').get()
+        title = response.css('h1::text').get()
         self.logger.info('%s %s', response.url, title)
-        # should we be using og_url instead of response.url for the above?
-        og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
+
+        og_type = response.css('meta[property="og:type"]::attr(content)').get()
 
         if og_type == 'article':
-            subtitle = response.xpath('//p[@id="article_subtitle"]').css('::text').extract_first()
-            photo_caption = response.xpath('//figcaption[@id="article_primary_image_caption"]/text()').extract_first()
+            subtitle = response.xpath('//p[@id="article_subtitle"]').css('::text').get()
+            photo_caption = response.xpath('//figcaption[@id="article_primary_image_caption"]/text()').get()
             article_body = " ".join(response.xpath('//div[@id="article_body"]').css('::text').extract())
             if subtitle and photo_caption:
                 body_html = subtitle + photo_caption + article_body
@@ -51,30 +48,29 @@ class groundupSpider(CrawlSpider):
                 body_html = photo_caption + article_body
             else:
                 body_html = article_body
-            byline = response.xpath('//a[@rel="author"]/text()').extract_first()
-            publication_date_str = response.xpath('//time/@datetime').extract_first().strip()
-            publication_date = datetime.strptime(publication_date_str[:10], '%Y-%m-%d')
-            publication_date = SAST.localize(publication_date)
+            byline = response.xpath('//a[@rel="author"]/text()').get()
+            publication_date_str = response.xpath('//time/@datetime').get()
+            if publication_date_str:
+                publication_date = datetime.strptime(publication_date_str[:10], '%Y-%m-%d')
+                publication_date = SAST.localize(publication_date)
+            else:
+                publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
             if body_html:
                 item = ScrapenewsItem()
                 item['body_html'] = body_html
-                item['title'] = title
-                item['byline'] = byline
+                item['title'] = title.strip() if title else ''
+                item['byline'] = byline.strip() if byline else ''
                 item['published_at'] = publication_date.isoformat()
                 item['retrieved_at'] = datetime.utcnow().isoformat()
-                item['url'] = og_url
+                item['url'] = og_url or response.url
                 item['file_name'] = response.url.split('/')[-2]
-                # should we be using og_url instead of response.url for the above?
                 item['spider_name'] = self.name
                 item['publication_name'] = self.publication_name
 
                 yield item
-
             else:
                 self.logger.info("No body found for %s", response.url)
-                # should we be using og_url instead of response.url for the above?
-
 
     def filter_links(self, links):
         for link in links:

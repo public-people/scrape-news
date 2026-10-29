@@ -5,6 +5,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapenews.items import ScrapenewsItem
 from datetime import datetime
 import pytz
+import json
 
 SAST = pytz.timezone('Africa/Johannesburg')
 
@@ -16,7 +17,7 @@ class ewnSpider(CrawlSpider):
     start_urls = ['https://ewn.co.za']
 
     link_extractor = LinkExtractor(
-        allow=(r'https://ewn.co.za/[0-9]{4}/[0-9]{2}/[0-9]{2}/',),
+        allow=(r'/\d{4}/\d{2}/\d{2}/',),
         deny=()
     )
 
@@ -27,40 +28,57 @@ class ewnSpider(CrawlSpider):
     publication_name = 'Eyewitness News'
 
     def parse_item(self, response):
-
-        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
-        title = response.css('h2 > span').xpath('text()').extract_first().strip()
+        canonical_url = response.css('link[rel=canonical]::attr(href)').get() or response.url
+        title = response.css('h1::text').get()
         self.logger.info('%s %s', response.url, title)
-        # should we be using canonical_url instead of response.url for the above?
-        og_type = response.xpath('//meta[@property="og:type"]/@content').extract_first()
-        if og_type == 'article':
-            body_html = " ".join(response.css('article.article-full p').extract())
-            byline = response.css('.byline span[itemprop="author"] a ::text').extract_first()
 
-            publication_date_str = response.xpath('//meta[@itemprop="datePublished"]/@content')\
-                .extract_first().strip()
-            # alas no time portion: possibly use timelib to
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
-            # datetime.datetime(2018, 6, 14, 11, 0)
-            publication_date = SAST.localize(publication_date)
-            # datetime.datetime(2018, 6, 14, 11, 0, tzinfo=<DstTzInfo 'Africa/Johannesburg' SAST+2:00:00 STD>)
+        # Try to find article body - ewn uses dynamic Vue/Tailwind classes
+        article_body = response.css('article.richtext')
+        if not article_body:
+            article_body = response.css('article')
+        if not article_body:
+            self.logger.info("No body found for %s", response.url)
+            return
 
-            if body_html:
-                item = ScrapenewsItem()
-                item['body_html'] = body_html
-                item['title'] = title
-                item['byline'] = byline
-                item['published_at'] = publication_date.isoformat()
-                item['retrieved_at'] = datetime.utcnow().isoformat()
-                item['url'] = canonical_url
-                item['file_name'] = response.url.split('/').pop()
-                item['spider_name'] = self.name
-                item['publication_name'] = self.publication_name
+        body_html = article_body.get()
 
-                yield item
-            else:
-                self.logger.info("No body found for %s", response.url)
-                # should we be using canonical_url instead of response.url for the above?
+        byline = response.css('meta[name=author]::attr(content)').get()
+
+        publication_date = None
+        # Try JSON-LD for date
+        for script in response.css('script[type="application/ld+json"]'):
+            try:
+                data = json.loads(script.css('::text').get(''))
+                if data.get('@type') == 'NewsArticle':
+                    date_str = data.get('datePublished')
+                    if date_str:
+                        publication_date = datetime.fromisoformat(date_str)
+                        publication_date = publication_date.astimezone(SAST)
+                    author_data = data.get('author')
+                    if author_data and not byline:
+                        if isinstance(author_data, dict):
+                            byline = author_data.get('name', '')
+                        elif isinstance(author_data, list) and author_data:
+                            byline = author_data[0].get('name', '')
+                    break
+            except (json.JSONDecodeError, ValueError):
+                continue
+
+        if not publication_date:
+            publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
+
+        item = ScrapenewsItem()
+        item['body_html'] = body_html
+        item['title'] = title.strip() if title else ''
+        item['byline'] = byline.strip() if byline else ''
+        item['published_at'] = publication_date.isoformat()
+        item['retrieved_at'] = datetime.utcnow().isoformat()
+        item['url'] = canonical_url
+        item['file_name'] = response.url.split('/').pop()
+        item['spider_name'] = self.name
+        item['publication_name'] = self.publication_name
+
+        yield item
 
     def filter_links(self, links):
         for link in links:

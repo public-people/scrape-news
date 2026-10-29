@@ -11,48 +11,50 @@ SAST = pytz.timezone('Africa/Johannesburg')
 class News24Spider(SitemapSpider):
     name = 'news24'
     allowed_domains = ['www.news24.com']
+    custom_settings = {
+        'ROBOTSTXT_OBEY': False,
+    }
 
-    sitemap_urls = ['https://www.news24.com/robots.txt']
+    sitemap_urls = ['https://www.news24.com/news24/sitemapindex/0/2026/10/28']
     sitemap_rules = [
-        ('www.news24.com/SouthAfrica/News', 'parse'),
-        ('www.news24.com/Columnists', 'parse'),
-        ('www.news24.com/Green/News', 'parse'),
-        ('www.news24.com/Obituaries', 'parse'),
-        ('www.news24.com/PressReleases', 'parse'),
+        (r'/southafrica/', 'parse'),
+        (r'/world/', 'parse'),
+        (r'/africa/', 'parse'),
+        (r'/business/', 'parse'),
+        (r'/politics/', 'parse'),
+        (r'/columnists/', 'parse'),
+        (r'/green/', 'parse'),
+        (r'/obituaries/', 'parse'),
+        (r'/pressreleases/', 'parse'),
     ]
 
     publication_name = 'News24'
 
     def parse(self, response):
-        if '/News/' not in response.url:
-            self.logger.info("Ignoring %s", response.url)
-            return
-
-        title = response.xpath('//div[contains(@class, "article_details")]/h1/text()').extract_first()
+        title = response.css('h1::text').get()
         self.logger.info('%s %s', response.url, title)
-        article_body = response.xpath('//article[@id="article-body"]')
+        article_body = response.css('.article')
         if article_body:
-            body_html = article_body.extract_first()
-            byline = response.xpath('//div[contains(@class, "ByLineWidth")]/p/text()').extract_first()
-            publication_date_str = response.xpath('//span[@id="spnDate"]/text()').extract_first()
-            accreditation = response.xpath('//div[contains(@class, "ByLineWidth")]/div[contains(@class, "accreditation")]/a/@href').extract_first()
+            body_html = article_body.get()
+            byline = response.css('meta[name=author]::attr(content)').get()
+            publication_date_str = response.css('meta[name=publisheddate]::attr(content)').get()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d %H:%M')
-            publication_date = SAST.localize(publication_date)
+            if publication_date_str:
+                publication_date = datetime.fromisoformat(publication_date_str)
+                publication_date = publication_date.astimezone(SAST)
+            else:
+                publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
             item = ScrapenewsItem()
             item['body_html'] = body_html
-            item['title'] = title
-            item['byline'] = byline
+            item['title'] = title.strip() if title else ''
+            item['byline'] = byline.strip() if byline else ''
             item['published_at'] = publication_date.isoformat()
             item['retrieved_at'] = datetime.utcnow().isoformat()
             item['url'] = response.url
             item['file_name'] = response.url.split('/')[-1]
             item['spider_name'] = self.name
-
             item['publication_name'] = self.publication_name
-            if accreditation:
-                item['publication_name'] += " with " + accreditation[1:]
 
             yield item
         self.logger.info("")

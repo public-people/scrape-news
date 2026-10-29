@@ -12,43 +12,42 @@ class DailMaverickSpider(SitemapSpider):
     name = 'dailymaverick'
     allowed_domains = ['www.dailymaverick.co.za']
 
-    sitemap_urls = ['https://www.dailymaverick.co.za/sitemap_index.xml']
-    sitemap_follow = ['article-sitemap']
+    sitemap_urls = ['https://www.dailymaverick.co.za/news-sitemap.xml']
 
     publication_name = 'Daily Maverick'
 
     def parse(self, response):
-        canonical_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
-        if canonical_url:
-            url = canonical_url
-        else:
-            url = response.url
+        canonical_url = response.css('link[rel=canonical]::attr(href)').get() or response.url
 
-        if '/opinionistas' in url:
-            self.logger.info("Ignoring %s", url)
+        if '/opinionistas' in canonical_url:
+            self.logger.info("Ignoring %s", canonical_url)
             return
 
-        title = response.xpath('//div[@class="titles"]/h1/text()').extract_first()
-        self.logger.info('%s %s', url, title)
-        article_body = response.xpath('//div[@class="article-container"]')
+        title = response.css('h1::text').get()
+        self.logger.info('%s %s', canonical_url, title)
+        article_body = response.css('.article-container')
         if article_body:
-            body_html = article_body.extract_first()
-            byline = response.xpath('//meta[@name="author"]/@content').extract_first()
-            publication_date_str = response.xpath('//meta[@name="published"]/@content').extract_first()
+            body_html = article_body.get()
+            byline = response.css('meta[name=author]::attr(content)').get()
+            publication_date_str = response.css('meta[name=published]::attr(content)').get()
 
-            publication_date = datetime.strptime(publication_date_str, '%Y-%m-%d')
-            publication_date = SAST.localize(publication_date)
+            if publication_date_str:
+                publication_date = datetime.fromisoformat(publication_date_str)
+                publication_date = publication_date.astimezone(SAST)
+            else:
+                publication_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
             item = ScrapenewsItem()
             item['body_html'] = body_html
-            item['title'] = title
-            item['byline'] = byline
+            item['title'] = title.strip() if title else ''
+            item['byline'] = byline.strip() if byline else ''
             item['published_at'] = publication_date.isoformat()
             item['retrieved_at'] = datetime.utcnow().isoformat()
-            item['url'] = url
-            item['file_name'] = url.split('/')[-2]
+            item['url'] = canonical_url
+            item['file_name'] = response.url.split('/')[-2]
             item['spider_name'] = self.name
-
             item['publication_name'] = self.publication_name
 
             yield item
+        else:
+            self.logger.info("No body found for %s", response.url)
